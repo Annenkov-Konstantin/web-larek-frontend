@@ -1,4 +1,4 @@
-interface IItem {
+interface IItemModel {
 	id: string;
 	title: string;
 	image: string;
@@ -7,46 +7,51 @@ interface IItem {
 	price: number | null;
 }
 
-interface ICustomer {
+interface ICustomerModel {
 	phone: string;
 	email: string;
 	address: string;
 	payment: 'card' | 'cash' | '';
 }
 
-interface IItemsCatalog {
-	catalog: IItem[];
-	selectedItem: IItem;
-	getCatalog(): IItem[];
-	saveSelectedItem(catalog: IItem[]): void;
-	getSelectedItem(): IItem;
+interface IItemsCatalogModel {
+	catalog: IItemModel[];
+	selectedItem: IItemModel;
+	getCatalog(): IItemModel[];
+	saveSelectedItem(catalog: IItemModel[]): void;
+	getSelectedItem(): IItemModel;
 }
 
-interface IItemsBasket {
+interface IItemsBasketModel {
 	itemsList: ItemBasket[];
-	addItem(item: IItem): void;
-	removeItem(item: IItem): void;
+	addItem(item: IItemModel): void;
+	removeItem(item: IItemModel): void;
 	getQuantity(): number;
 	getItemsList(): ItemBasket[];
 	getTotalPrice(): number;
 	getAvailability(): boolean;
 }
 
-interface IOrder extends ICustomer {
+interface IOrderModel extends ICustomerModel {
 	totalPrice: number;
 	items: string[];
 }
 
-type ItemsQuantity = ReturnType<IItemsBasket['getQuantity']>;
+interface IOrderMakerModel {
+	order: IOrderModel;
+	getOrder(): IOrderModel;
+}
+
+type ItemsQuantity = ReturnType<IItemsBasketModel['getQuantity']>;
 
 type ItemGallery = Pick<
-	IItem,
+	IItemModel,
 	'id' | 'image' | 'category' | 'description' | 'price'
 >;
 type ItemGalleryArray = ItemGallery[];
 
-type ItemBasket = Pick<IItem, 'id' | 'title' | 'price'>;
+type ItemBasket = Pick<IItemModel, 'id' | 'title' | 'price'>;
 
-type CustomerDataPaymentAddress = Pick<ICustomer, 'payment' | 'address'>;
+type CustomerDataPaymentAddress = Pick<ICustomerModel, 'payment' | 'address'>;
 
-type CustomerDataContacts = Pick<ICustomer, 'phone' | 'email'>;
+type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
