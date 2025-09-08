@@ -11,7 +11,7 @@ export interface IItemsCatalogModel {
 	catalog: IItemModel[];
 	selectedItem: IItemModel;
 	setSelectedItem(id: string): void;
-	getAvailability(): boolean;
+	//getAvailability(): boolean;
 }
 
 export interface IBasketModel {

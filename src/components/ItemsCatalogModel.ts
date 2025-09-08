@@ -18,6 +18,14 @@ export class ItemsCatalogModel implements IItemsCatalogModel {
 		this.events = events;
 	}
 
+	processImagesSrc(catalog: IItemModel[]): IItemModel[] {
+		catalog.forEach((item) => {
+			const image = item.image;
+			item.image = CDN_URL + image;
+		});
+		return catalog;
+	}
+
 	set catalog(catalog: IItemModel[]) {
 		this._catalog = this.processImagesSrc(catalog);
 		//---------
@@ -45,20 +53,17 @@ export class ItemsCatalogModel implements IItemsCatalogModel {
 		}
 	}
 
-	processImagesSrc(catalog: IItemModel[]): IItemModel[] {
-		catalog.forEach((item) => {
-			const image = item.image;
-			item.image = CDN_URL + image;
-		});
-		return catalog;
+	clearSelectedItem() {
+		this._selectedItem = null;
 	}
 
 	get selectedItem(): IItemModel {
+		console.log('Карточка сохранена и отправлена');
 		//this.events.emit(CatalogModelEvents.ClearPreviewSelectedItem);
 		return this._selectedItem;
 	}
 
-	getAvailability(): boolean {
+	/* 	getAvailability(): boolean {
 		return this._selectedItem.price !== null;
-	}
+	} */
 }
