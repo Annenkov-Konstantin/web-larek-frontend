@@ -9,6 +9,11 @@ export enum ModalCardViewEvents {
 	//CardPreviewCreated = 'cardPreview:created',
 }
 
+// Интерфейс для аргумента события (если хотите явно)
+export interface CardPreviewButtonClickedPayload {
+	cardId: string;
+}
+
 export class ModalCardView<IItemModel> extends CardView<IItemModel> {
 	protected imageElement: HTMLImageElement;
 	protected categoryElement: HTMLSpanElement;
@@ -18,6 +23,7 @@ export class ModalCardView<IItemModel> extends CardView<IItemModel> {
 	protected priceTextByDefault: string;
 	protected buttonTextContentByDefault: string;
 	protected buttonStateByDefault: string;
+	protected cardView: HTMLElement;
 
 	constructor(templateContainer: HTMLTemplateElement, events: IEvents) {
 		super(templateContainer, events);
@@ -40,7 +46,7 @@ export class ModalCardView<IItemModel> extends CardView<IItemModel> {
 
 		this.buttonElement.addEventListener('click', () => {
 			this.events.emit(ModalCardViewEvents.CardPreviewButtonClicked, {
-				cardId: this.id,
+				cardId: this.cardId,
 			});
 		});
 		//----------
@@ -64,12 +70,13 @@ export class ModalCardView<IItemModel> extends CardView<IItemModel> {
 		itemObject: Record<'price', number | null> & Partial<IItemModel>,
 		properties: DisplayItemsElements
 	): HTMLElement {
-		const itemData = this.render(itemObject);
+		this.cardView = this.render(itemObject);
 		this.priceElement.textContent = properties.price;
 		if (itemObject.price === null) {
 			this.buttonElement.setAttribute('disabled', '');
 			this.buttonElement.textContent = 'Недоступно';
 		}
+
 		if (
 			!(
 				this.categoryElement.classList.contains('card__category_other') &&
@@ -81,12 +88,8 @@ export class ModalCardView<IItemModel> extends CardView<IItemModel> {
 				properties.category
 			);
 		}
-		/* 		this.events.emit(ModalCardViewEvents.CardPreviewCreated, {
-			card: itemData,
-		}); */
-		console.log(this.buttonTextContentByDefault);
 
-		return itemData;
+		return this.cardView;
 	}
 
 	clearProperties() {

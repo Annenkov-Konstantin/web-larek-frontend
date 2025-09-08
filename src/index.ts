@@ -28,7 +28,11 @@ import {
 	ModalWrapperEvents,
 	ModalWrapperView,
 } from './components/ModalWrapperView';
-import { ModalCardViewEvents, ModalCardView } from './components/ModalCardView';
+import {
+	ModalCardViewEvents,
+	CardPreviewButtonClickedPayload,
+	ModalCardView,
+} from './components/ModalCardView';
 
 // Главный контейнер страницы
 const page: HTMLElement = ensureElement('.page');
@@ -139,9 +143,6 @@ eventEmitter.on(CatalogModelEvents.Initialized, function () {
 		modalWrapperView.insertContentAndDisplay(readyItem);
 	});
 
-	// Подписка на событие создания наполнения для Модальной обёртки
-	//eventEmitter.on(ModalCardViewEvents.CardPreviewCreated, function () {});
-
 	// Подписка на событие клика по кнопке закрытия модалки
 	eventEmitter.on(ModalWrapperEvents.CloseButtonClicked, function () {
 		modalCardView.clearProperties();
@@ -151,6 +152,20 @@ eventEmitter.on(CatalogModelEvents.Initialized, function () {
 
 		console.log(itemsCatalogModel.selectedItem);
 	});
+
+	// Подписка на событие клика по кнопке Добавить в корзину
+	eventEmitter.on(
+		ModalCardViewEvents.CardPreviewButtonClicked,
+		(payload: CardPreviewButtonClickedPayload) => {
+			const id = payload.cardId;
+			const item = basketModel.itemsList;
+			const exists = item.some((previousItem) => previousItem.id === id);
+			if (!exists) {
+				basketModel.addItem(itemsCatalogModel.getItem(id));
+			}
+			console.log(basketModel.itemsList);
+		}
+	);
 });
 
 // Подключение к серверу для получения данных

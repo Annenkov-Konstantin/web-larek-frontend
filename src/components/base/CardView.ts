@@ -20,7 +20,7 @@ export abstract class CardView<ItemBasket> extends ComponentView<ItemBasket> {
 		this.titleElement.textContent = value;
 	}
 
-	set id(id) {
+	set id(id: string) {
 		this.cardId = id;
 	}
 

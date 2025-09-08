@@ -1,4 +1,4 @@
-import { IItemModel, IItemsCatalogModel } from '../types';
+import { IItemModel, IItemsCatalogModel, ItemBasket } from '../types';
 import { IEvents } from './base/events';
 import { CDN_URL } from '../utils/constants';
 
@@ -63,6 +63,19 @@ export class ItemsCatalogModel implements IItemsCatalogModel {
 		return this._selectedItem;
 	}
 
+	getItem(id: string): ItemBasket {
+		const itemIndex = this._catalog.findIndex((item) => item.id === id);
+		if (itemIndex !== -1) {
+			const item = this._catalog[itemIndex];
+			return {
+				id: item.id,
+				title: item.title,
+				price: item.price,
+			};
+		} else {
+			console.log('Нет товара с таким id!');
+		}
+	}
 	/* 	getAvailability(): boolean {
 		return this._selectedItem.price !== null;
 	} */
