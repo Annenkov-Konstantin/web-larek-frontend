@@ -1,4 +1,4 @@
-export interface IItemModel {
+interface IItem {
 	id: string;
 	title: string;
 	image: string;
@@ -7,62 +7,46 @@ export interface IItemModel {
 	price: number | null;
 }
 
-export interface IItemsCatalogModel {
-	catalog: IItemModel[];
-	selectedItem: IItemModel;
-	setSelectedItem(id: string): void;
-	//getAvailability(): boolean;
-}
-
-export interface IBasketModel {
-	itemsList: ItemTitleAndPrice[];
-	addItem(item: IItemModel): void;
-	removeItem(id: string): void;
-	getQuantity(): number;
-	getTotalPrice(): number;
-}
-
-export interface ICustomerModel {
+interface ICustomer {
 	phone: string;
 	email: string;
 	address: string;
-}
-
-export interface ICustomerProcessingModel {
-	data: ICustomerModel;
-	setCustomerdata(userData: Partial<ICustomerModel>): void;
-}
-
-export interface IOrderModel {
 	payment: 'card' | 'cash' | '';
+}
+
+interface IItemsCatalog {
+	catalog: IItem[];
+	selectedItem: IItem;
+	getCatalog(): IItem[];
+	saveSelectedItem(catalog: IItem[]): void;
+	getSelectedItem(): IItem;
+}
+
+interface IItemsBasket {
+	itemsList: ItemBasket[];
+	addItem(item: IItem): void;
+	removeItem(item: IItem): void;
+	getQuantity(): number;
+	getItemsList(): ItemBasket[];
+	getTotalPrice(): number;
+	getAvailability(): boolean;
+}
+
+interface IOrder extends ICustomer {
 	totalPrice: number;
 	items: string[];
 }
 
-export interface IOrderMakerModel {
-	order: IOrderModel;
-	setOrderData(userData: Partial<IOrderModel>): void;
-}
+type ItemsQuantity = ReturnType<IItemsBasket['getQuantity']>;
 
-export type FinalOrderData = ICustomerModel & IOrderModel;
-
-export type ItemsQuantity = ReturnType<IBasketModel['getQuantity']>;
-
-export type ItemGallery = Pick<
-	IItemModel,
-	'id' | 'image' | 'category' | 'title' | 'price'
+type ItemGallery = Pick<
+	IItem,
+	'id' | 'image' | 'category' | 'description' | 'price'
 >;
+type ItemGalleryArray = ItemGallery[];
 
-export type ItemGalleryArray = ItemGallery[];
+type ItemBasket = Pick<IItem, 'id' | 'title' | 'price'>;
 
-export type ItemTitleAndPrice = Pick<IItemModel, 'title' | 'price'>;
+type CustomerDataPaymentAddress = Pick<ICustomer, 'payment' | 'address'>;
 
-export type ItemBasket = Pick<IItemModel, 'id' | 'title' | 'price'>;
-
-export type Payment = Pick<IOrderModel, 'payment'>;
-
-export type Address = Pick<ICustomerModel, 'address'>;
-
-export type PaymantAndAdress = Payment | Address;
-
-export type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
+type CustomerDataContacts = Pick<ICustomer, 'phone' | 'email'>;

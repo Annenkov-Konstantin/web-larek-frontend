@@ -50,7 +50,7 @@ yarn build
 Товар
 
 ```
-interface IItemModel {
+interface IItem {
     id: string;
     title: string;
     image: string;
@@ -63,7 +63,7 @@ interface IItemModel {
 Пользователь
 
 ```
-interface ICustomerModel {
+interface ICustomer {
     phone: string;
     email: string;
     address: string;
@@ -73,25 +73,25 @@ interface ICustomerModel {
 Интерфейс для модели данных массива товаров
 
 ```
-interface IItemsCatalogModel {
-    catalog: IItemModel[];
-    selectedItem: IItemModel;
-    saveCatalog(itemsArr: IItemModel[]): void;
-    getCatalog(): IItemModel[];
-    saveSelectedItem(catalog: IItemModel[]): void;
-    getSelectedItem(): IItemModel;
+interface IItemsCatalog {
+    catalog: IItem[];
+    selectedItem: IItem;
+    saveCatalog(itemsArr: IItem[]): void;
+    getCatalog(): IItem[];
+    saveSelectedItem(catalog: IItem[]): void;
+    getSelectedItem(): IItem;
 }
 ```
 
 Интерфейс для модели данных корзины товаров
 
 ```
-interface IItemsBasketModel {
-    itemsList: ItemBasketModel[];
-    addItem(item: IItemModel): void;
-    removeItem(item: IItemModel): void;
+interface IItemsBasket {
+    itemsList: ItemBasket[];
+    addItem(item: IItem): void;
+    removeItem(item: IItem): void;
     getQuantity(): number;
-    getItemsList(): ItemBasketModel[];
+    getItemsList(): ItemBasket[];
     getTotalPrice(): number;
     getAvailability(): boolean;
 }
@@ -100,7 +100,7 @@ interface IItemsBasketModel {
 Данные заказа
 
 ```
-interface IOrderModel extends ICustomerModel {
+interface IOrder extends ICustomer {
     totalPrice: number;
     items: string[];
 }
@@ -109,32 +109,32 @@ interface IOrderModel extends ICustomerModel {
 Данные товара используемые в шапке при выводе количества товаров
 
 ```
-type ItemsQuantity = ReturnType<IItemsBasketModel['getQuantity']>;
+type ItemsQuantity = ReturnType<IItemsBasket['getQuantity']>;
 ```
 
 Данные товара, используемые в галерее при выводе
 
 ```
-type ItemGallery = Pick<IItemModel, 'id' | 'image' | 'category' | 'description' | 'price'>;
-type ItemGalleryArray = ItemGalleryModel[];
+type ItemGallery = Pick<IItem, 'id' | 'image' | 'category' | 'description' | 'price'>;
+type ItemGalleryArray = ItemGallary[];
 ```
 
 Данные товара, используемые в корзине
 
 ```
-type ItemBasket = Pick<IItemModel, 'id' | 'title' | 'price'>;
+type ItemBasket = Pick<IItem, 'id' | 'title' | 'price'>;
 ```
 
 Данные пользователя, используемые в форме для выбора оплаты и указания адреса
 
 ```
-type CustomerDataPaymentAddress = Pick<ICustomerModel, 'payment' | 'address';
+type CustomerDataPaymentAddress = Pick<ICustomer, 'payment' | 'address';
 ```
 
 Данные пользователя, используемые в форме для выбора оплаты и указания адреса
 
 ```
-type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
+type CustomerDataContacts = Pick<ICustomer, 'phone' | 'email'>;
 ```
 
 ## Архитектура приложения
@@ -166,37 +166,37 @@ type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
 
 ### Слой данных
 
-#### Класс ItemsCatalogModel
+#### Класс ItemsCatalog
 
 Класс отвечает за хранение и логику работы с данными товаров.\
 Конструктор класса принимает инстант брокера событий и массив товаров\
 В полях класса хранятся следующие данные:
 
-- \_catalog: IItemModel[] - массив объектов товаров
-- \_selectedItem: IItemModel - выбранный товар, отображаемый в модальном окне
+- \_catalog: IItem[] - массив объектов товаров
+- \_selectedItem: IItem - выбранный товар, отображаемый в модальном окне
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
 
-- getCatalog(): IItemModel[] - возвращает массив товаров.
-- saveSelectedItem(item: IItemModel): void - сохраняет выбранный товар для вывода в модальном окне.
-- getSelectedItem(): IItemModel - возвращает выбранный товар для вывода в модальном окне.
+- getCatalog(): IItem[] - возвращает массив товаров.
+- saveSelectedItem(item: IItem): void - сохраняет выбранный товар для вывода в модальном окне.
+- getSelectedItem(): IItem - возвращает выбранный товар для вывода в модальном окне.
 
-#### Класс ItemsBasketModel
+#### Класс ItemsBasket
 
 Класс отвечает за хранение и логику работы с выбранными товарами.\
 Конструктор класса принимает инстант брокера событий\
 В полях класса хранятся следующие данные:
 
-- itemsList: ItemBasketModel[] - массив выбранных товаров.
+- itemsList: ItemBasket[] - массив выбранных товаров.
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 Так же класс предоставляет набор методов для взаимодействия с этими данными.
 
-- addItem(item: IItemModel): void - добавляет выбранный товар в корзину.
-- removeItem(item: IItemModel): void - удаляет выбранный товар из корзины.
+- addItem(item: IItem): void - добавляет выбранный товар в корзину.
+- removeItem(item: IItem): void - удаляет выбранный товар из корзины.
 - getQuantity(): number - позволяет получить количество выбранных товаров.
-- getItemsList(): IItemModel[] - возвращает список выбранных товаров.
+- getItemsList(): IItem[] - возвращает список выбранных товаров.
 - getTotalPrice(): number - позволяет получить совокупную сумму цен.
 - getAvailability(): boolean - позволяет проверить доступность товара.
 
@@ -204,7 +204,7 @@ type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
 
 Все классы представления отвечают за отображение внутри контейнера (DOM-элемент) передаваемых в них данных.
 
-#### Абстрактный класс ComponentView
+#### Абстрактный класс Component
 
 Позволяет наследовать всем компонентам отображения поле контейнера, который будет выбран для размещения разметки, а также метод для обновления данных объекта разметки наследников.\
 
@@ -215,7 +215,7 @@ type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
   Методы:
 - render(data?: Partial<T>): HTMLElement - позволяет обновлять данные через сеттеры.
 
-#### Абстрактный класс CardView
+#### Абстрактный класс Card
 
 Класс расширяет класс Component и позволяет наследовать поля описания товара и цену, так как эта информация отображается во всех карточках. \
 
@@ -227,7 +227,7 @@ type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
 
 - сеттеры и геттеры для получения и установки значений полей.
 
-#### Класс BasketCardView
+#### Класс BasketCard
 
 Расширяет класс Card. Предназначен для реализации списка товаров в корзине.
 Поля класса:
@@ -239,7 +239,7 @@ type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
   Методы класса:
 - getItems(): HTMLElement[] - будет возвращать массив объектов с разметкой.
 
-#### Класс CatalogCardView
+#### Класс CatalogCard
 
 Расширяет класс Card. Предназначен для вывода списка товаров в галерею.
 Поля класса:
