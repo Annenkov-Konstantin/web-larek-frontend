@@ -1,5 +1,5 @@
 import { IEvents } from '../base/events';
-import { IBasketModel, ItemBasket } from '../../types';
+import { IBasketModel, ItemBasket, ItemsId } from '../../types';
 
 export enum BasketModelEvents {
 	ItemAdded = 'item:added',
@@ -42,6 +42,14 @@ export class BasketModel implements IBasketModel {
 
 	get itemsList(): ItemBasket[] {
 		return this._itemsList;
+	}
+
+	getItemsId(): string[] {
+		const itemsId = this._itemsList.map((item) => {
+			const itemId = item.id;
+			return itemId;
+		})
+		return itemsId;
 	}
 
 	getTotalPrice(): number {

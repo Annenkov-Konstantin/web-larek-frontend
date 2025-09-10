@@ -19,6 +19,7 @@ import {
 	ClickedGallaryItem,
 	BasketList,
 	IBasketItem,
+	Payment,
 } from './types/index';
 
 import { ensureElement, cloneTemplate, createElement } from './utils/utils';
@@ -54,6 +55,16 @@ import {
 	BasketListViewEvents,
 } from './components/View/BasketListView';
 
+import {
+	OrderMakerModel,
+	OrderModelEvents,
+} from './components/Model/OrderMakerModel';
+
+import {
+	OrderFormView,
+	OrderFormEvents,
+} from './components/View/OrderFormView';
+
 // Главный контейнер страницы
 const page: HTMLElement = ensureElement('.page');
 const headerContainer = ensureElement<HTMLElement>('.header__container', page);
@@ -87,6 +98,11 @@ const basketLiTemplate: HTMLTemplateElement =
 // Контейнер для заполнения обёртки модального окна Preview Корзины
 const previewItemInList = cloneTemplate(basketLiTemplate);
 
+// Темплейт Формы заказа
+const orderFormTemplate: HTMLTemplateElement = page.querySelector('#order');
+// Контейнер для Формы заказа
+const orderFormElement: HTMLFormElement = cloneTemplate(orderFormTemplate);
+
 // Создание объекта эмиттера
 const eventEmitter = new EventEmitter();
 
@@ -114,11 +130,16 @@ const basketModel = new BasketModel(eventEmitter);
 // Создание объекта Отображения списка Корзины
 const basketListView = new BasketListView(basketContainerElement, eventEmitter);
 
+// Создание объекта Модели Заказа товаров
+const orderMakerModel = new OrderMakerModel(eventEmitter);
 //const customer = new CustomerProcessingModel(eventEmitter);
+
+// Создание объекта формы Заказа
+const orderFormView = new OrderFormView(orderFormElement, eventEmitter);
 
 // Подписка на добавление данных покупателя
 //eventEmitter.on(CustomerModelEvents.CustomerDataChanged, function () {});
-//const orderMakerModel = new OrderMakerModel(eventEmitter);
+//
 
 // Подписка на окончательное создание заказа
 //eventEmitter.on(OrderModelEvents.OrderDataCreated, function () {});
@@ -148,7 +169,7 @@ function displayBusket() {
 }
 
 // Главная подписка на первоначальную загрузку и сохранение данных
-eventEmitter.on(CatalogModelEvents.Initialized, function () {
+eventEmitter.on(CatalogModelEvents.Initialized, () => {
 	// Получаем массив обработанных и сохранённых данных из модели
 	const itemsCatalog: IItemModel[] = itemsCatalogModel.catalog;
 
@@ -176,7 +197,7 @@ eventEmitter.on<ClickedGallaryItem>(
 );
 
 // Подписка на событие сохранения выделенного кликнутого товара
-eventEmitter.on(CatalogModelEvents.ItemSelected, function () {
+eventEmitter.on(CatalogModelEvents.ItemSelected, () => {
 	const selectedItem = itemsCatalogModel.selectedItem;
 
 	const readyItem = modalCardView.render(selectedItem);
@@ -185,7 +206,7 @@ eventEmitter.on(CatalogModelEvents.ItemSelected, function () {
 });
 
 // Подписка на событие клика по кнопке закрытия модалки
-eventEmitter.on(ModalWrapperEvents.CloseButtonClicked, function () {
+eventEmitter.on(ModalWrapperEvents.CloseButtonClicked, () => {
 	if (modalCardView.isUsed) {
 		itemsCatalogModel.clearSelectedItem();
 		modalCardView.clearProperties();
@@ -222,15 +243,21 @@ eventEmitter.on<ItemsId>(BasketModelEvents.ItemAdded, (payload) => {
 // Подписка на удаление товара из корзины
 eventEmitter.on<ItemsId>(BasketModelEvents.ItemDeleted, (payload) => {
 	//const { id } = payload;
-	modalCardView.buttonToBuy();
+	if (modalCardView.isUsed) {
+		modalCardView.buttonToBuy();
+	}
+
 	headerView.basketCounter = basketModel.getQuantity();
+	if (basketListView.isUsed()) {
+		basketListView.clearProperties();
+		basketListView.render(displayBusket());
+	}
 });
 
 // Подписка на клик по кнопке корзины
 eventEmitter.on(HeaderEvents.BusketButtonClicked, function () {
 	const itemsInBusket = displayBusket();
 	const busketListUlContainer = basketListView.render(itemsInBusket);
-
 	modalWrapperView.insertContentAndDisplay(busketListUlContainer);
 });
 
@@ -240,13 +267,32 @@ eventEmitter.on<ItemsId>(
 	(payload) => {
 		const { id } = payload;
 		basketModel.removeItem(id);
-		//!!!!!!!!&&&&&&??????? Должно быть в другом событии и в каком составе?
-		const itemsInBusket = displayBusket();
-		const busketListUlContainer = basketListView.render(itemsInBusket);
-
-		modalWrapperView.insertContentAndDisplay(busketListUlContainer);
+		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		orderMakerModel.removeItem(id);
 	}
 );
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Подписка на событие нажатия кнопки Оформить Список Товаров
+eventEmitter.on(BasketListViewEvents.buttonToOrderClicked, () => {
+	orderMakerModel.setItems(basketModel.getItemsId());
+	basketListView.clearProperties();
+	modalWrapperView.closemodalWrapperAndClear();
+	modalWrapperView.insertContentAndDisplay(
+		orderFormView.render({ spanErrors: '', buttonState: false })
+	);
+});
+
+// Подписка на событие выбора формы оплаты
+eventEmitter.on<Payment>(OrderFormEvents.PaymentChoosed, (payload) => {
+	const { payment } = payload;
+	if (payment === 'card') {
+		orderFormView.render({ card: true, cash: false });
+	} else {
+		orderFormView.render({ cash: true, card: false });
+	}
+	orderMakerModel.setPayment(payment);
+	console.log(orderMakerModel.order);
+});
 
 // Подключение к серверу для получения данных
 api

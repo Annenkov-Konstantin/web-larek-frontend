@@ -16,7 +16,7 @@ export class BasketListView extends ComponentView<IBasketItem> {
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);
-
+		this.events = events;
 		this.basketListElement = ensureElement(
 			'.basket__list',
 			this.container
@@ -38,6 +38,9 @@ export class BasketListView extends ComponentView<IBasketItem> {
 
 	set totalPrice(value: number) {
 		this.basketTotalPriceElement.textContent = String(value) + ' синапсов';
+		if (this.basketTotalPriceElement.textContent === '0 синапсов') {
+			this.buttonToOrder.setAttribute('disabled', '');
+		}
 		this.thisUsed = true;
 	}
 
@@ -54,6 +57,7 @@ export class BasketListView extends ComponentView<IBasketItem> {
 	clearProperties() {
 		this.basketListElement.innerHTML = '';
 		this.basketTotalPriceElement.textContent = '';
+		this.buttonToOrder.removeAttribute('disabled');
 		this.thisUsed = false;
 	}
 }
