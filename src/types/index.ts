@@ -11,11 +11,10 @@ export interface IItemsCatalogModel {
 	catalog: IItemModel[];
 	selectedItem: IItemModel;
 	setSelectedItem(id: string): void;
-	//getAvailability(): boolean;
 }
 
 export interface IBasketModel {
-	itemsList: ItemTitleAndPrice[];
+	itemsList: ItemBasket[];
 	addItem(item: ItemBasket): void;
 	removeItem(id: string): void;
 	getQuantity(): number;
@@ -28,6 +27,11 @@ export interface IItemClicked {
 	title: string;
 	category: string;
 	price: number;
+}
+
+export interface IBasketItem {
+	totalPrice: number;
+	item: HTMLLIElement[];
 }
 
 export interface ICustomerModel {
@@ -58,7 +62,7 @@ export type FinalOrderData = ICustomerModel & IOrderModel;
 
 export type ItemsQuantity = ReturnType<IBasketModel['getQuantity']>;
 
-export type ClickedGallaryItem =  { item: string };
+export type ClickedGallaryItem = { item: string };
 
 export type ItemGallery = Pick<
 	IItemModel,
@@ -67,9 +71,9 @@ export type ItemGallery = Pick<
 
 export type ItemGalleryArray = ItemGallery[];
 
-export type ItemTitleAndPrice = Pick<IItemModel, 'title' | 'price'>;
-
 export type ItemBasket = Pick<IItemModel, 'id' | 'title' | 'price'>;
+
+export type BasketList = ItemBasket & { totalQuantity: number };
 
 export type Payment = Pick<IOrderModel, 'payment'>;
 

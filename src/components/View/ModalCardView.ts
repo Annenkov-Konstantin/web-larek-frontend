@@ -3,12 +3,10 @@ import { IItemModel } from '../../types';
 import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
 import { IItemClicked } from '../../types';
-//import { DisplayItemsElements } from './ItemsGallaryView';
 import { checkBasket } from '../..';
 
 export enum ModalCardViewEvents {
 	CardPreviewButtonClicked = 'cardPreviewButton:clicked',
-	//CardPreviewCreated = 'cardPreview:created',
 }
 
 const softToSpecific: Record<string, string> = {
@@ -23,6 +21,7 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 	protected categoryElement: HTMLSpanElement;
 	protected descriptionElement: HTMLParagraphElement;
 	protected buttonElement: HTMLButtonElement;
+	protected thisUsed: boolean;
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container, events);
@@ -41,6 +40,8 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 			'.card__button',
 			this.container
 		) as HTMLButtonElement;
+
+		this.thisUsed = false;
 
 		this.buttonElement.addEventListener('click', () => {
 			this.events.emit(ModalCardViewEvents.CardPreviewButtonClicked, {
@@ -64,6 +65,7 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 			this.categoryElement.classList.replace('card__category_other', newClass);
 		}
 		this.buttonState();
+		this.thisUsed = true;
 	}
 
 	set description(value: string) {
@@ -83,15 +85,19 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 	}
 
 	buttonState() {
-		checkBasket(this.cardId) ? this.buttonDelete() : this.buttonBuy();
+		checkBasket(this.cardId) ? this.buttonToDelete() : this.buttonToBuy();
 	}
 
-	buttonBuy() {
+	buttonToBuy() {
 		this.buttonElement.textContent = 'Купить';
 	}
 
-	buttonDelete() {
+	buttonToDelete() {
 		this.buttonElement.textContent = 'Удалить из корзины';
+	}
+
+	isUsed(): boolean {
+		return this.thisUsed;
 	}
 
 	clearProperties() {
@@ -101,5 +107,9 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 		this.descriptionElement.textContent = '';
 		this.buttonElement.textContent = 'Купить';
 		this.buttonElement.removeAttribute('disabled');
+		this.thisUsed = false;
+		this.titleElement.textContent = '';
+		this.cardId = '';
+		this.priceElement.textContent = '';
 	}
 }
