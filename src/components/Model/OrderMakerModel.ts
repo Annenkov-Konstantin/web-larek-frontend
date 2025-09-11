@@ -3,6 +3,7 @@ import { IEvents } from '../base/events';
 import { ItemsId } from '../../types';
 
 export enum OrderModelEvents {
+	PaymentWayAdded = 'paymentWay:added',
 	OrderDataCreated = 'order:created',
 }
 
@@ -20,7 +21,7 @@ export class OrderMakerModel implements IOrderMakerModel {
 		this.events = events;
 	}
 
-	setOrderData(orderData: IOrderModel): void {
+	setOrderData(orderData: Partial<IOrderModel>): void {
 		if (orderData) {
 			Object.assign(this._order, orderData);
 			this.events.emit(OrderModelEvents.OrderDataCreated);
@@ -34,10 +35,10 @@ export class OrderMakerModel implements IOrderMakerModel {
 	setPayment(value: IOrderModel['payment']) {
 		this._order.payment = value;
 	}
-
-	removeItem(id: string) {
-		this._order.items = this._order.items.filter((item) => item !== id);
-	}
+	 
+	getPayment() {
+		return this._order.payment;
+	} 
 
 	get order(): IOrderModel {
 		Object.assign(this._order, this.items);

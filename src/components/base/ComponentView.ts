@@ -1,4 +1,6 @@
-import { IEvents } from './events';
+export interface IComponentView {
+	render({}): HTMLElement;
+}
 
 export abstract class ComponentView<T> {
 	protected container: HTMLElement;

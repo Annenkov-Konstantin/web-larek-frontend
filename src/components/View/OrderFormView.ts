@@ -1,4 +1,4 @@
-import { ComponentView } from '../base/ComponentView';
+import { FormView } from './FormView';
 import { IOrderForm } from '../../types';
 import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
@@ -9,90 +9,107 @@ export enum OrderFormEvents {
 	Submit = 'orderForm:submit',
 }
 
-export class OrderFormView<IOrderForm> extends ComponentView<IOrderForm> {
-	protected form: HTMLFormElement;
+export class OrderFormView<IOrderForm> extends FormView<IOrderForm> {
 	protected cardButton: HTMLButtonElement;
 	protected cashButton: HTMLButtonElement;
 	protected addressInput: HTMLInputElement;
-	protected submitButton: HTMLButtonElement;
-	protected formErrors: HTMLSpanElement;
-	protected events: IEvents;
 
 	constructor(container: HTMLFormElement, events: IEvents) {
-		super(container);
-		this.form = this.container as HTMLFormElement;
-		this.cardButton = this.form.elements.namedItem(
-			'card'
-		) as HTMLButtonElement | null;
-		this.cashButton = this.form.elements.namedItem(
-			'cash'
-		) as HTMLButtonElement | null;
+		super(container, events);
+
+		this.cardButton = this.form.querySelector(
+			'button[name="card"]'
+		) as HTMLButtonElement;
+		if (!this.cardButton) {
+			console.log('Кнопка выбора card не найдена');
+		}
+
+		this.cashButton = this.form.querySelector(
+			'button[name="cash"]'
+		) as HTMLButtonElement;
+		if (!this.cashButton) {
+			console.log('Кнопка выбора cash не найдена');
+		}
+
 		this.addressInput = this.form.elements.namedItem(
 			'address'
 		) as HTMLInputElement | null;
+		if (!this.addressInput) {
+			console.log('Инпут address не найден');
+		}
+
 		this.submitButton = ensureElement(
 			'.order__button',
 			this.form
 		) as HTMLButtonElement;
-		this.formErrors = ensureElement('.form__errors', this.form);
-		this.events = events;
+		if (!this.submitButton) {
+			console.log('Кнопка submit не найдена');
+		}
 
-		this.container.setAttribute('novalidate', '');
-
-		this.container.addEventListener('submit', (evt) => {
-			evt.preventDefault();
-		});
-
-		this.cardButton.addEventListener('click', () => {
-			this.events.emit(OrderFormEvents.PaymentChoosed, { payment: 'card' });
-		});
-
-		this.cashButton.addEventListener('click', () => {
-			this.events.emit(OrderFormEvents.PaymentChoosed, { payment: 'cash' });
-		});
-
-		this.addressInput.addEventListener('change', () => {
-			this.events.emit(OrderFormEvents.AddressInputChanged, {
-				address: this.addressInput.value,
+		if (this.cardButton) {
+			this.cardButton.addEventListener('click', () => {
+				this.events.emit(OrderFormEvents.PaymentChoosed, { payment: 'card' });
 			});
-		});
-
-		this.submitButton.addEventListener('submit', () => {
-			this.events.emit(OrderFormEvents.Submit, {
-				address: this.addressInput.value,
-			});
-		});
-	}
-
-	set spanErrors(text: string) {
-		this.formErrors.textContent = text;
-	}
-
-	set buttonState(active: boolean) {
-		if (active) {
-			this.submitButton.removeAttribute('disabled');
 		} else {
-			this.submitButton.setAttribute('disabled', '');
+			console.log(
+				'cardButton не найдена, событие click OrderFormEvents.PaymentChoosed не эмитировано'
+			);
+		}
+
+		if (this.cashButton) {
+			this.cashButton.addEventListener('click', () => {
+				this.events.emit(OrderFormEvents.PaymentChoosed, { payment: 'cash' });
+			});
+		} else {
+			console.log(
+				'cashButton не найдена, событие click OrderFormEvents.PaymentChoosed не эмитировано'
+			);
+		}
+
+		if (this.addressInput) {
+			this.addressInput.addEventListener('input', () => {
+				this.events.emit(OrderFormEvents.AddressInputChanged, {
+					address: this.addressInput.value,
+				});
+			});
+		} else {
+			console.log(
+				'addressInput не найден, событие input OrderFormEvents.AddressInputChanged не эмитировано'
+			);
+		}
+
+		if (this.addressInput) {
+			this.addressInput.addEventListener('change', () => {
+				this.events.emit(OrderFormEvents.AddressInputChanged, {
+					address: this.addressInput.value,
+				});
+			});
+		} else {
+			console.log(
+				'addressInput не найден, событие change OrderFormEvents.AddressInputChanged не эмитировано'
+			);
+		}
+
+		if (this.form) {
+			this.form.addEventListener('submit', () => {
+				this.events.emit(OrderFormEvents.Submit, {
+					address: this.addressInput.value,
+				});
+			});
+		} else {
+			console.log(
+				'Форма не найдена, событие submit OrderFormEvents.Submit не эмитировано'
+			);
 		}
 	}
 
 	set card(cardPayment: boolean) {
-		if (cardPayment) {
-			this.cardButton.classList.add('button_alt-active');
-		} else {
-			this.cardButton.classList.remove('button_alt-active');
-		}
+		this.cardButton.classList.add('button_alt-active');
+		this.cashButton.classList.remove('button_alt-active');
 	}
 
 	set cash(cashPayment: boolean) {
-		if (cashPayment) {
-			this.cashButton.classList.add('button_alt-active');
-		} else {
-			this.cashButton.classList.remove('button_alt-active');
-		}
-	}
-
-	clear() {
-		this.form.reset();
+		this.cashButton.classList.add('button_alt-active');
+		this.cardButton.classList.remove('button_alt-active');
 	}
 }

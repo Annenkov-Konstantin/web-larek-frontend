@@ -10,7 +10,7 @@ export enum CardBasketViewEvents {
 export class CardBasketView<ItemBasket> extends CardView<ItemBasket> {
 	protected quantityItemsElement: HTMLSpanElement;
 	protected buttonDeleteElement: HTMLButtonElement;
-	//protected thisUsed: boolean;
+	
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container, events);
@@ -23,8 +23,6 @@ export class CardBasketView<ItemBasket> extends CardView<ItemBasket> {
 			'.basket__item-delete',
 			this.container
 		) as HTMLButtonElement;
-
-		//this.thisUsed = false;
 
 		this.buttonDeleteElement.addEventListener('click', () => {
 			this.events.emit(CardBasketViewEvents.ButtonDeleteClecked, {

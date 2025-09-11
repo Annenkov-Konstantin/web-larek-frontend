@@ -1,6 +1,6 @@
 import './scss/styles.scss';
 
-import { API_URL } from './utils/constants';
+import { API_URL, errorMessage } from './utils/constants';
 
 import { ApiListResponse, Api } from './components/base/api';
 
@@ -20,6 +20,9 @@ import {
 	BasketList,
 	IBasketItem,
 	Payment,
+	Address,
+	Email,
+	Phone,
 } from './types/index';
 
 import { ensureElement, cloneTemplate, createElement } from './utils/utils';
@@ -60,10 +63,22 @@ import {
 	OrderModelEvents,
 } from './components/Model/OrderMakerModel';
 
+import { IComponentView } from './components/base/ComponentView';
+
 import {
 	OrderFormView,
 	OrderFormEvents,
 } from './components/View/OrderFormView';
+
+import {
+	CustomerProcessingModel,
+	CustomerModelEvents,
+} from './components/Model/CustomerProcessingModel';
+
+import {
+	ContactsFormView,
+	ContactsFormEvents,
+} from './components/View/ContactsFormView';
 
 // Главный контейнер страницы
 const page: HTMLElement = ensureElement('.page');
@@ -98,10 +113,17 @@ const basketLiTemplate: HTMLTemplateElement =
 // Контейнер для заполнения обёртки модального окна Preview Корзины
 const previewItemInList = cloneTemplate(basketLiTemplate);
 
-// Темплейт Формы заказа
+// Темплейт Формы Заказа
 const orderFormTemplate: HTMLTemplateElement = page.querySelector('#order');
-// Контейнер для Формы заказа
+// Контейнер для Формы Заказа
 const orderFormElement: HTMLFormElement = cloneTemplate(orderFormTemplate);
+
+// Темплейт Формы Контактов
+const contactsFormTemplate: HTMLTemplateElement =
+	page.querySelector('#contacts');
+// Контейнер для Формы Контактов
+const contactsFormElement: HTMLFormElement =
+	cloneTemplate(contactsFormTemplate);
 
 // Создание объекта эмиттера
 const eventEmitter = new EventEmitter();
@@ -127,6 +149,9 @@ const headerView = new HeaderView(headerContainer, eventEmitter);
 // Создание объекта Модели корзины
 const basketModel = new BasketModel(eventEmitter);
 
+// Создание объекта Модели обработки данных покупателя
+const customerProcessingModel = new CustomerProcessingModel(eventEmitter);
+
 // Создание объекта Отображения списка Корзины
 const basketListView = new BasketListView(basketContainerElement, eventEmitter);
 
@@ -134,15 +159,14 @@ const basketListView = new BasketListView(basketContainerElement, eventEmitter);
 const orderMakerModel = new OrderMakerModel(eventEmitter);
 //const customer = new CustomerProcessingModel(eventEmitter);
 
-// Создание объекта формы Заказа
+// Создание объекта Формы Заказа
 const orderFormView = new OrderFormView(orderFormElement, eventEmitter);
 
-// Подписка на добавление данных покупателя
-//eventEmitter.on(CustomerModelEvents.CustomerDataChanged, function () {});
-//
-
-// Подписка на окончательное создание заказа
-//eventEmitter.on(OrderModelEvents.OrderDataCreated, function () {});
+// Создание объекта Формы Контактов
+const contactsFormView = new ContactsFormView(
+	contactsFormElement,
+	eventEmitter
+);
 
 export function checkBasket(id: string) {
 	const item: ItemBasket[] = basketModel.itemsList;
@@ -168,6 +192,36 @@ function displayBusket() {
 	return itemsInBusket;
 }
 
+function checkForm(firstValue: string, secondValue: string) {
+	return firstValue.length > 0 && secondValue.length > 0;
+}
+
+function updateSubmitButton(buttonState: boolean, form: IComponentView) {
+	form.render({ buttonState });
+}
+
+let formState = {
+	address: '',
+	payment: '',
+	email: '',
+	phone: '',
+};
+
+function checkError(
+	value: string,
+	endOfMessage: string,
+	form: IComponentView
+): void {
+	if (value.length === 0) {
+		form.render({
+			spanErrors: errorMessage + endOfMessage,
+		});
+	} else {
+		form.render({
+			spanErrors: '',
+		});
+	}
+}
 // Главная подписка на первоначальную загрузку и сохранение данных
 eventEmitter.on(CatalogModelEvents.Initialized, () => {
 	// Получаем массив обработанных и сохранённых данных из модели
@@ -267,32 +321,92 @@ eventEmitter.on<ItemsId>(
 	(payload) => {
 		const { id } = payload;
 		basketModel.removeItem(id);
-		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		orderMakerModel.removeItem(id);
 	}
 );
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 // Подписка на событие нажатия кнопки Оформить Список Товаров
 eventEmitter.on(BasketListViewEvents.buttonToOrderClicked, () => {
-	orderMakerModel.setItems(basketModel.getItemsId());
+	// Добавление самих товаров в заказ
+	//orderMakerModel.setItems(basketModel.getItemsId());
 	basketListView.clearProperties();
 	modalWrapperView.closemodalWrapperAndClear();
-	modalWrapperView.insertContentAndDisplay(
-		orderFormView.render({ spanErrors: '', buttonState: false })
-	);
+	const orderForm = orderFormView.render();
+	modalWrapperView.insertContentAndDisplay(orderForm);
 });
 
 // Подписка на событие выбора формы оплаты
 eventEmitter.on<Payment>(OrderFormEvents.PaymentChoosed, (payload) => {
 	const { payment } = payload;
-	if (payment === 'card') {
-		orderFormView.render({ card: true, cash: false });
-	} else {
-		orderFormView.render({ cash: true, card: false });
-	}
+	formState.payment = payment;
 	orderMakerModel.setPayment(payment);
-	console.log(orderMakerModel.order);
+
+	orderFormView.render({ [payment]: true });
+
+	updateSubmitButton(
+		checkForm(formState.payment, formState.address),
+		orderFormView
+	);
 });
+
+// Подписка на событие input/change адреса в форме Заказа
+eventEmitter.on<Address>(OrderFormEvents.AddressInputChanged, (payload) => {
+	const { address } = payload;
+	formState.address = address;
+	checkError(address, ' адрес', orderFormView);
+
+	updateSubmitButton(
+		checkForm(formState.payment, formState.address),
+		orderFormView
+	);
+});
+
+// Подписка на событие submit формы Заказа
+eventEmitter.on<Address>(OrderFormEvents.Submit, (payload) => {
+	const { address } = payload;
+	if (checkForm(formState.payment, formState.address)) {
+		customerProcessingModel.setCustomerdata({ address: address });
+	}
+	const contactsForm = contactsFormView.render({});
+	modalWrapperView.closemodalWrapperAndClear();
+	modalWrapperView.insertContentAndDisplay(contactsForm);
+});
+
+// Подписка на событие input/change в поле email формы Контактов
+eventEmitter.on<Email>(ContactsFormEvents.EmailInputChanged, (payload) => {
+	const { email } = payload;
+	formState.email = email;
+	checkError(email, ' имейл', contactsFormView);
+
+	updateSubmitButton(
+		checkForm(formState.email, formState.phone),
+		contactsFormView
+	);
+});
+
+/* customerProcessingModel.setCustomerdata({ email });
+console.log(customerProcessingModel.data); */
+
+// Подписка на событие input/change в поле Номер Телефона формы Контактов
+eventEmitter.on<Phone>(ContactsFormEvents.PhoneInputChanged, (payload) => {
+	const { phone } = payload;
+	formState.phone = phone;
+	checkError(phone, ' номер телефона', contactsFormView);
+
+	updateSubmitButton(
+		checkForm(formState.email, formState.phone),
+		contactsFormView
+	);
+});
+// Подписка на событие submit  формы Контактов
+
+// Подписка на добавление данных покупателя
+eventEmitter.on(CustomerModelEvents.CustomerDataChanged, function () {
+	console.log(customerProcessingModel.data);
+	contactsFormView.render({});
+});
+
+// Подписка на окончательное создание заказа
+//eventEmitter.on(OrderModelEvents.OrderDataCreated, function () {});
 
 // Подключение к серверу для получения данных
 api

@@ -84,8 +84,12 @@ export type PaymantAndAdress = Payment | Address;
 export interface IOrderForm {
 	spanErrors: string;
 	buttonState: boolean;
-	card: boolean;
-	cash: boolean;
+	card?: boolean;
+	cash?: boolean;
 }
 
 export type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
+
+export type Email = Pick<ICustomerModel, 'email'>;
+
+export type Phone = Pick<ICustomerModel, 'phone'>;
