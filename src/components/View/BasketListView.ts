@@ -54,7 +54,7 @@ export class BasketListView extends ComponentView<IBasketItem> {
 		return this.thisUsed;
 	}
 
-	clearProperties() {
+	clearProperties(): void {
 		this.basketListElement.innerHTML = '';
 		this.basketTotalPriceElement.textContent = '';
 		this.buttonToOrder.removeAttribute('disabled');

@@ -34,6 +34,7 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 			'.card__text',
 			this.container
 		) as HTMLParagraphElement;
+
 		this.buttonElement = ensureElement(
 			'.card__button',
 			this.container
@@ -82,15 +83,15 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 		}
 	}
 
-	buttonState() {
+	buttonState(): void {
 		checkBasket(this.cardId) ? this.buttonToDelete() : this.buttonToBuy();
 	}
 
-	buttonToBuy() {
+	buttonToBuy(): void {
 		this.buttonElement.textContent = 'Купить';
 	}
 
-	buttonToDelete() {
+	buttonToDelete(): void {
 		this.buttonElement.textContent = 'Удалить из корзины';
 	}
 
@@ -98,7 +99,7 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 		return this.thisUsed;
 	}
 
-	clearProperties() {
+	clearProperties(): void {
 		this.imageElement.src = '';
 		this.categoryElement.textContent = '';
 		this.categoryElement.className = 'card__category card__category_other'; // сбросить классы

@@ -158,14 +158,13 @@ const headerView = new HeaderView(headerContainer, eventEmitter);
 const basketModel = new BasketModel(eventEmitter);
 
 // Создание объекта Модели обработки данных покупателя
-const customerProcessingModel = new CustomerProcessingModel(eventEmitter);
+const customerProcessingModel = new CustomerProcessingModel();
 
 // Создание объекта Отображения списка Корзины
 const basketListView = new BasketListView(basketContainerElement, eventEmitter);
 
 // Создание объекта Модели Заказа товаров
 const orderMakerModel = new OrderMakerModel(eventEmitter);
-//const customer = new CustomerProcessingModel(eventEmitter);
 
 // Создание объекта Формы Заказа
 const orderFormView = new OrderFormView(orderFormElement, eventEmitter);

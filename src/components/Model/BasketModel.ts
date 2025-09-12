@@ -1,5 +1,5 @@
 import { IEvents } from '../base/events';
-import { IBasketModel, ItemBasket, ItemsId } from '../../types';
+import { IBasketModel, ItemBasket } from '../../types';
 
 export enum BasketModelEvents {
 	ItemAdded = 'item:added',
@@ -57,7 +57,7 @@ export class BasketModel implements IBasketModel {
 		}
 	}
 
-	clearBasket() {
+	clearBasket(): void {
 		this._itemsList = [];
 	}
 }

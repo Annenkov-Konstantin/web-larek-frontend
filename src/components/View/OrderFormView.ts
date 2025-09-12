@@ -100,7 +100,7 @@ export class OrderFormView<IOrderForm> extends FormView<IOrderForm> {
 		this.cardButton.classList.remove('button_alt-active');
 	}
 
-	clearForm() {
+	clearForm(): void {
 		this.form.reset();
 		if (this.cashButton.classList.contains('button_alt-active')) {
 			this.cashButton.classList.remove('button_alt-active');

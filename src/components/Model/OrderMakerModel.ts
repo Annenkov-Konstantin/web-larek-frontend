@@ -1,6 +1,5 @@
-import { IOrderModel, IOrderMakerModel, OrderData } from '../../types';
+import { IOrderMakerModel, OrderData } from '../../types';
 import { IEvents } from '../base/events';
-import { ItemsId } from '../../types';
 
 export enum OrderModelEvents {
 	OrderDataCreated = 'order:created',
@@ -18,7 +17,7 @@ export class OrderMakerModel implements IOrderMakerModel {
 		this.events = events;
 	}
 
-	setPayment(value: OrderData['payment']) {
+	setPayment(value: OrderData['payment']): void {
 		this._order.payment = value;
 	}
 
@@ -31,7 +30,7 @@ export class OrderMakerModel implements IOrderMakerModel {
 		return this._order;
 	}
 
-	clearOrdeData() {
+	clearOrdeData(): void {
 		this._order = {
 			payment: '',
 			total: 0,

@@ -12,6 +12,7 @@ export class ItemsGallaryView<
 	constructor(containerToPasteGalary: HTMLElement) {
 		super(containerToPasteGalary);
 	}
+
 	set catalog(items: HTMLElement[]) {
 		this.container.replaceChildren(...items);
 	}

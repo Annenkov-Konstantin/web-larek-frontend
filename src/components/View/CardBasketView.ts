@@ -30,7 +30,7 @@ export class CardBasketView<ItemBasket> extends CardView<ItemBasket> {
 		});
 	}
 
-	setNumberInList(value: number) {
+	setNumberInList(value: number): void {
 		this.quantityItemsElement.textContent = String(value);
 	}
 }

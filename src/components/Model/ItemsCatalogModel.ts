@@ -35,7 +35,7 @@ export class ItemsCatalogModel implements IItemsCatalogModel {
 		return this._catalog;
 	}
 
-	setSelectedItem(id: string) {
+	setSelectedItem(id: string): void {
 		const itemIndex = this._catalog.findIndex((item) => item.id === id);
 		if (itemIndex !== -1) {
 			this._selectedItem = this._catalog[itemIndex];
@@ -45,7 +45,7 @@ export class ItemsCatalogModel implements IItemsCatalogModel {
 		}
 	}
 
-	clearSelectedItem() {
+	clearSelectedItem(): void {
 		this._selectedItem = null;
 	}
 

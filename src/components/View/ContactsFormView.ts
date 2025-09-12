@@ -67,7 +67,7 @@ export class ContactsFormView<ContactsForm> extends FormView<ContactsForm> {
 		}
 	}
 
-	clearForm() {
+	clearForm(): void {
 		this.form.reset();
 	}
 }

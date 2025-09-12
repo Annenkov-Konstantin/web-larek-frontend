@@ -14,14 +14,17 @@ export class ModalWrapperView extends ComponentView<HTMLElement> {
 
 	constructor(container: HTMLElement, events: IEvents, page: HTMLElement) {
 		super(container);
+
 		this.closeButton = ensureElement(
 			'.modal__close',
 			this.container
 		) as HTMLButtonElement;
+
 		this.contentElement = ensureElement(
 			'.modal__content',
 			this.container
 		) as HTMLElement;
+
 		this.events = events;
 
 		this.page = page;

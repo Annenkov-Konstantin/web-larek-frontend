@@ -6,8 +6,8 @@ import { ItemBasket } from '../../types';
 export abstract class CardView<ItemBasket> extends ComponentView<ItemBasket> {
 	protected titleElement: HTMLElement;
 	protected priceElement: HTMLSpanElement;
-	protected events: IEvents;
 	protected cardId: string;
+	protected events: IEvents;
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container);

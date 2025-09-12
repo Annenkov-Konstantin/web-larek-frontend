@@ -10,7 +10,10 @@ export interface IItemModel {
 export interface IItemsCatalogModel {
 	catalog: IItemModel[];
 	selectedItem: IItemModel;
+	processImagesSrc(catalog: IItemModel[]): IItemModel[];
 	setSelectedItem(id: string): void;
+	clearSelectedItem(): void;
+	getItem(id: string): ItemBasket;
 }
 
 export interface IBasketModel {
@@ -18,15 +21,9 @@ export interface IBasketModel {
 	addItem(item: ItemBasket): void;
 	removeItem(id: string): void;
 	getQuantity(): number;
+	getItemsId(): string[];
 	getTotalPrice(): number;
-}
-
-export interface IItemClicked {
-	id: string;
-	image: string;
-	title: string;
-	category: string;
-	price: number;
+	clearBasket(): void;
 }
 
 export interface IBasketItem {
@@ -43,6 +40,7 @@ export interface ICustomerModel {
 export interface ICustomerProcessingModel {
 	data: ICustomerModel;
 	setCustomerData(userData: Partial<ICustomerModel>): void;
+	clearCustomerData(): void;
 }
 
 export interface IOrderModel extends ICustomerModel {
@@ -53,8 +51,9 @@ export interface IOrderModel extends ICustomerModel {
 
 export interface IOrderMakerModel {
 	order: OrderData;
-	setTotalPrice(totalPrice: OrderData['total']): void;
 	setPayment(value: OrderData['payment']): void;
+	setTotalPrice(totalPrice: OrderData['total']): void;
+	clearOrdeData(): void;
 }
 
 export interface IOrderForm {
@@ -81,22 +80,11 @@ export type ItemsQuantity = ReturnType<IBasketModel['getQuantity']>;
 
 export type ClickedGallaryItem = { item: string };
 
-export type ItemGallery = Pick<
-	IItemModel,
-	'id' | 'image' | 'category' | 'title' | 'price'
->;
-
-export type ItemGalleryArray = ItemGallery[];
-
 export type ItemBasket = Pick<IItemModel, 'id' | 'title' | 'price'>;
-
-export type BasketList = ItemBasket & { totalQuantity: number };
 
 export type Payment = Pick<IOrderModel, 'payment'>;
 
 export type Address = Pick<ICustomerModel, 'address'>;
-
-export type PaymantAndAdress = Payment | Address;
 
 export type OrderData = Pick<IOrderModel, 'payment' | 'total'>;
 
