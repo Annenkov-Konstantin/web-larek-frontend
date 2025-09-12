@@ -17,10 +17,7 @@ export class BasketModel implements IBasketModel {
 
 	addItem(item: ItemBasket): void {
 		this._itemsList.push(item);
-		//-----
-		console.log(`Товар ${item.title} успешно добавлен в корзину`);
-		//-----
-		this.events.emit(BasketModelEvents.ItemAdded, { id: item.id });
+		this.events.emit(BasketModelEvents.ItemAdded);
 	}
 
 	removeItem(id: string): void {
@@ -28,10 +25,7 @@ export class BasketModel implements IBasketModel {
 		if (itemIndex !== -1) {
 			const item = this._itemsList[itemIndex];
 			this._itemsList.splice(itemIndex, 1);
-			//----------
-			console.log(`Товар: ${item.title} благополучно удалён из корзины`);
-			//----------
-			this.events.emit(BasketModelEvents.ItemDeleted, { cardId: item.id });
+			this.events.emit(BasketModelEvents.ItemDeleted);
 			return;
 		}
 	}
@@ -48,7 +42,7 @@ export class BasketModel implements IBasketModel {
 		const itemsId = this._itemsList.map((item) => {
 			const itemId = item.id;
 			return itemId;
-		})
+		});
 		return itemsId;
 	}
 
@@ -61,5 +55,9 @@ export class BasketModel implements IBasketModel {
 		} else {
 			return 0;
 		}
+	}
+
+	clearBasket() {
+		this._itemsList = [];
 	}
 }

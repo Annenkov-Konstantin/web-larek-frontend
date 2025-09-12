@@ -15,17 +15,18 @@ import {
 	IItemModel,
 	ItemsId,
 	ItemBasket,
-	IItemClicked,
 	ClickedGallaryItem,
-	BasketList,
 	IBasketItem,
 	Payment,
 	Address,
 	Email,
 	Phone,
+	CustomerDataContacts,
+	FinalOrderData,
+	ResponseSuccess,
 } from './types/index';
 
-import { ensureElement, cloneTemplate, createElement } from './utils/utils';
+import { ensureElement, cloneTemplate } from './utils/utils';
 
 import {
 	ItemCardView,
@@ -70,15 +71,17 @@ import {
 	OrderFormEvents,
 } from './components/View/OrderFormView';
 
-import {
-	CustomerProcessingModel,
-	CustomerModelEvents,
-} from './components/Model/CustomerProcessingModel';
+import { CustomerProcessingModel } from './components/Model/CustomerProcessingModel';
 
 import {
 	ContactsFormView,
 	ContactsFormEvents,
 } from './components/View/ContactsFormView';
+
+import {
+	ModallSuccessView,
+	SuccessEvents,
+} from './components/View/ModalSuccessView';
 
 // Главный контейнер страницы
 const page: HTMLElement = ensureElement('.page');
@@ -125,6 +128,11 @@ const contactsFormTemplate: HTMLTemplateElement =
 const contactsFormElement: HTMLFormElement =
 	cloneTemplate(contactsFormTemplate);
 
+// Темплейт для заполнения обёртки модального окна Succsess
+const successTemplate: HTMLTemplateElement = page.querySelector('#success');
+// Контейнер для заполнения обёртки модального окна Succsess
+const successElement: HTMLDivElement = cloneTemplate(successTemplate);
+
 // Создание объекта эмиттера
 const eventEmitter = new EventEmitter();
 
@@ -138,7 +146,7 @@ const itemsCatalogModel = new ItemsCatalogModel(eventEmitter);
 const itemsGallaryView = new ItemsGallaryView(containerToPasteGalary);
 
 // Создание объекта Отображения Обёртки Модального окна
-const modalWrapperView = new ModalWrapperView(modalWrapper, eventEmitter);
+const modalWrapperView = new ModalWrapperView(modalWrapper, eventEmitter, page);
 
 // Создание объекта Отображения Preview товара в модальной карточке
 const modalCardView = new ModalCardView(previewContainer, eventEmitter);
@@ -167,6 +175,9 @@ const contactsFormView = new ContactsFormView(
 	contactsFormElement,
 	eventEmitter
 );
+
+// Создание объекта Отображения Success
+const modallSuccessView = new ModallSuccessView(successElement, eventEmitter);
 
 export function checkBasket(id: string) {
 	const item: ItemBasket[] = basketModel.itemsList;
@@ -265,7 +276,7 @@ eventEmitter.on(ModalWrapperEvents.CloseButtonClicked, () => {
 		itemsCatalogModel.clearSelectedItem();
 		modalCardView.clearProperties();
 	}
-	//if (cardBasketView.isUsed())
+
 	if (basketListView.isUsed()) {
 		basketListView.clearProperties();
 	}
@@ -288,15 +299,13 @@ eventEmitter.on<ItemsId>(
 );
 
 // Подписка на добавление товара в корзину
-eventEmitter.on<ItemsId>(BasketModelEvents.ItemAdded, (payload) => {
-	//const { id } = payload;
+eventEmitter.on<ItemsId>(BasketModelEvents.ItemAdded, () => {
 	modalCardView.buttonToDelete();
 	headerView.basketCounter = basketModel.getQuantity();
 });
 
 // Подписка на удаление товара из корзины
-eventEmitter.on<ItemsId>(BasketModelEvents.ItemDeleted, (payload) => {
-	//const { id } = payload;
+eventEmitter.on<ItemsId>(BasketModelEvents.ItemDeleted, () => {
 	if (modalCardView.isUsed) {
 		modalCardView.buttonToBuy();
 	}
@@ -326,10 +335,7 @@ eventEmitter.on<ItemsId>(
 
 // Подписка на событие нажатия кнопки Оформить Список Товаров
 eventEmitter.on(BasketListViewEvents.buttonToOrderClicked, () => {
-	// Добавление самих товаров в заказ
-	//orderMakerModel.setItems(basketModel.getItemsId());
 	basketListView.clearProperties();
-	modalWrapperView.closemodalWrapperAndClear();
 	const orderForm = orderFormView.render();
 	modalWrapperView.insertContentAndDisplay(orderForm);
 });
@@ -348,7 +354,7 @@ eventEmitter.on<Payment>(OrderFormEvents.PaymentChoosed, (payload) => {
 	);
 });
 
-// Подписка на событие input/change адреса в форме Заказа
+// Подписка на событие input адреса в форме Заказа
 eventEmitter.on<Address>(OrderFormEvents.AddressInputChanged, (payload) => {
 	const { address } = payload;
 	formState.address = address;
@@ -364,14 +370,13 @@ eventEmitter.on<Address>(OrderFormEvents.AddressInputChanged, (payload) => {
 eventEmitter.on<Address>(OrderFormEvents.Submit, (payload) => {
 	const { address } = payload;
 	if (checkForm(formState.payment, formState.address)) {
-		customerProcessingModel.setCustomerdata({ address: address });
+		customerProcessingModel.setCustomerData({ address: address });
 	}
 	const contactsForm = contactsFormView.render({});
-	modalWrapperView.closemodalWrapperAndClear();
 	modalWrapperView.insertContentAndDisplay(contactsForm);
 });
 
-// Подписка на событие input/change в поле email формы Контактов
+// Подписка на событие input в поле email формы Контактов
 eventEmitter.on<Email>(ContactsFormEvents.EmailInputChanged, (payload) => {
 	const { email } = payload;
 	formState.email = email;
@@ -383,10 +388,7 @@ eventEmitter.on<Email>(ContactsFormEvents.EmailInputChanged, (payload) => {
 	);
 });
 
-/* customerProcessingModel.setCustomerdata({ email });
-console.log(customerProcessingModel.data); */
-
-// Подписка на событие input/change в поле Номер Телефона формы Контактов
+// Подписка на событие input в поле Номер Телефона формы Контактов
 eventEmitter.on<Phone>(ContactsFormEvents.PhoneInputChanged, (payload) => {
 	const { phone } = payload;
 	formState.phone = phone;
@@ -397,16 +399,59 @@ eventEmitter.on<Phone>(ContactsFormEvents.PhoneInputChanged, (payload) => {
 		contactsFormView
 	);
 });
-// Подписка на событие submit  формы Контактов
 
-// Подписка на добавление данных покупателя
-eventEmitter.on(CustomerModelEvents.CustomerDataChanged, function () {
-	console.log(customerProcessingModel.data);
-	contactsFormView.render({});
+// Подписка на событие submit  формы Контактов
+eventEmitter.on<CustomerDataContacts>(ContactsFormEvents.Submit, (payload) => {
+	const { email, phone } = payload;
+	customerProcessingModel.setCustomerData({ email, phone });
+
+	orderMakerModel.setTotalPrice(basketModel.getTotalPrice());
 });
 
 // Подписка на окончательное создание заказа
-//eventEmitter.on(OrderModelEvents.OrderDataCreated, function () {});
+eventEmitter.on(OrderModelEvents.OrderDataCreated, () => {
+	const customer = customerProcessingModel.data;
+	const order = orderMakerModel.order;
+	const items = basketModel.getItemsId();
+
+	const orderFoRequest: FinalOrderData = {
+		payment: order.payment,
+		email: customer.email,
+		phone: customer.phone,
+		address: customer.address,
+		total: order.total,
+		items: items,
+	};
+	api
+		.post('/order', orderFoRequest)
+		.then((result: ResponseSuccess) => {
+			basketModel.clearBasket();
+			headerView.basketCounter = basketModel.getQuantity();
+			customerProcessingModel.clearCustomerData();
+			orderMakerModel.clearOrdeData();
+			orderFormView.clearForm();
+			contactsFormView.clearForm();
+			formState = {
+				address: '',
+				payment: '',
+				email: '',
+				phone: '',
+			};
+			orderFormView.buttonState = false;
+			contactsFormView.buttonState = false;
+			modalWrapperView.insertContentAndDisplay(
+				modallSuccessView.render({ success: result.total })
+			);
+		})
+		.catch((error) => {
+			console.error('Ошибка при POST-запросе:', error);
+		});
+});
+
+// Подписка на закрытие модального окна Success
+eventEmitter.on(SuccessEvents.SuccessButtonClicked, () => {
+	modalWrapperView.closemodalWrapperAndClear();
+});
 
 // Подключение к серверу для получения данных
 api

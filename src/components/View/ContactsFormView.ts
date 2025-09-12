@@ -1,7 +1,6 @@
 import { FormView } from './FormView';
 import { IOrderForm } from '../../types';
 import { IEvents } from '../base/events';
-import { ensureElement } from '../../utils/utils';
 
 export enum ContactsFormEvents {
 	EmailInputChanged = 'emailInput:changed',
@@ -42,18 +41,6 @@ export class ContactsFormView<ContactsForm> extends FormView<ContactsForm> {
 			);
 		}
 
-		if (this.emailInput) {
-			this.emailInput.addEventListener('change', () => {
-				this.events.emit(ContactsFormEvents.EmailInputChanged, {
-					email: this.emailInput.value,
-				});
-			});
-		} else {
-			console.log(
-				'emailInput не найден, событие change ContactsFormEvents.EmailInputChanged не эмитировано'
-			);
-		}
-
 		if (this.phoneInput) {
 			this.phoneInput.addEventListener('input', () => {
 				this.events.emit(ContactsFormEvents.PhoneInputChanged, {
@@ -66,19 +53,6 @@ export class ContactsFormView<ContactsForm> extends FormView<ContactsForm> {
 			);
 		}
 
-		if (this.phoneInput) {
-			this.phoneInput.addEventListener('change', () => {
-				this.events.emit(ContactsFormEvents.PhoneInputChanged, {
-					phone: this.phoneInput.value,
-				});
-			});
-		} else {
-			console.log(
-				'phoneInput не найден, событие change ContactsFormEvents.PhoneInputChanged не эмитировано'
-			);
-		}
-
-		
 		if (this.form) {
 			this.form.addEventListener('submit', () => {
 				this.events.emit(ContactsFormEvents.Submit, {
@@ -91,5 +65,9 @@ export class ContactsFormView<ContactsForm> extends FormView<ContactsForm> {
 				'Форма не найдена, событие submit ContactsFormEvents.Submit не эмитировано'
 			);
 		}
+	}
+
+	clearForm() {
+		this.form.reset();
 	}
 }

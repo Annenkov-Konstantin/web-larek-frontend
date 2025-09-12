@@ -42,18 +42,35 @@ export interface ICustomerModel {
 
 export interface ICustomerProcessingModel {
 	data: ICustomerModel;
-	setCustomerdata(userData: Partial<ICustomerModel>): void;
+	setCustomerData(userData: Partial<ICustomerModel>): void;
 }
 
-export interface IOrderModel {
+export interface IOrderModel extends ICustomerModel {
 	payment: 'card' | 'cash' | '';
-	totalPrice: number;
+	total: number;
 	items: string[];
 }
 
 export interface IOrderMakerModel {
-	order: IOrderModel;
-	setOrderData(userData: Partial<IOrderModel>): void;
+	order: OrderData;
+	setTotalPrice(totalPrice: OrderData['total']): void;
+	setPayment(value: OrderData['payment']): void;
+}
+
+export interface IOrderForm {
+	spanErrors: string;
+	buttonState: boolean;
+	card?: boolean;
+	cash?: boolean;
+}
+
+export interface ISuccess {
+	success: number;
+}
+
+export interface ResponseSuccess {
+	total: number;
+	id: string;
 }
 
 export type ItemsId = Pick<IItemModel, 'id'>;
@@ -81,12 +98,7 @@ export type Address = Pick<ICustomerModel, 'address'>;
 
 export type PaymantAndAdress = Payment | Address;
 
-export interface IOrderForm {
-	spanErrors: string;
-	buttonState: boolean;
-	card?: boolean;
-	cash?: boolean;
-}
+export type OrderData = Pick<IOrderModel, 'payment' | 'total'>;
 
 export type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
 

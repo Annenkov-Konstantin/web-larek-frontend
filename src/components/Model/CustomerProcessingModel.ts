@@ -18,14 +18,21 @@ export class CustomerProcessingModel implements ICustomerProcessingModel {
 		this.events = events;
 	}
 
-	setCustomerdata(userData: Partial<ICustomerModel>): void {
+	setCustomerData(userData: Partial<ICustomerModel>): void {
 		if (userData) {
 			Object.assign(this._customer, userData);
-			this.events.emit(CustomerModelEvents.CustomerDataChanged);
 		}
 	}
 
 	get data(): ICustomerModel {
 		return this._customer;
+	}
+
+	clearCustomerData() {
+		this._customer = {
+			phone: '',
+			email: '',
+			address: '',
+		};
 	}
 }

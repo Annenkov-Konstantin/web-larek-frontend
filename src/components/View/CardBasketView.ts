@@ -10,7 +10,6 @@ export enum CardBasketViewEvents {
 export class CardBasketView<ItemBasket> extends CardView<ItemBasket> {
 	protected quantityItemsElement: HTMLSpanElement;
 	protected buttonDeleteElement: HTMLButtonElement;
-	
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container, events);
@@ -33,18 +32,5 @@ export class CardBasketView<ItemBasket> extends CardView<ItemBasket> {
 
 	setNumberInList(value: number) {
 		this.quantityItemsElement.textContent = String(value);
-		//this.thisUsed = true;
 	}
-
-	/* 	isUsed(): boolean {
-		return this.thisUsed;
-	} */
-
-	/* 	clearProperties() {
-		this.quantityItemsElement.textContent = '';
-		this.thisUsed = false;
-		this.titleElement.textContent = '';
-		this.cardId = '';
-		this.priceElement.textContent = '';
-	} */
 }

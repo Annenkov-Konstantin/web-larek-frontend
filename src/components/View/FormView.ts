@@ -37,16 +37,10 @@ export abstract class FormView<T> extends ComponentView<T> {
 	}
 
 	set buttonState(active: boolean) {
-		//this.thisUsed = true;
 		if (active) {
 			this.submitButton.removeAttribute('disabled');
 		} else {
 			this.submitButton.setAttribute('disabled', '');
 		}
-	}
-
-	clear() {
-		this.form.reset();
-		//this.thisUsed = false;
 	}
 }

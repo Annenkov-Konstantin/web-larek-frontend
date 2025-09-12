@@ -1,5 +1,4 @@
 import { FormView } from './FormView';
-import { IOrderForm } from '../../types';
 import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
 
@@ -78,18 +77,6 @@ export class OrderFormView<IOrderForm> extends FormView<IOrderForm> {
 			);
 		}
 
-		if (this.addressInput) {
-			this.addressInput.addEventListener('change', () => {
-				this.events.emit(OrderFormEvents.AddressInputChanged, {
-					address: this.addressInput.value,
-				});
-			});
-		} else {
-			console.log(
-				'addressInput не найден, событие change OrderFormEvents.AddressInputChanged не эмитировано'
-			);
-		}
-
 		if (this.form) {
 			this.form.addEventListener('submit', () => {
 				this.events.emit(OrderFormEvents.Submit, {
@@ -111,5 +98,14 @@ export class OrderFormView<IOrderForm> extends FormView<IOrderForm> {
 	set cash(cashPayment: boolean) {
 		this.cashButton.classList.add('button_alt-active');
 		this.cardButton.classList.remove('button_alt-active');
+	}
+
+	clearForm() {
+		this.form.reset();
+		if (this.cashButton.classList.contains('button_alt-active')) {
+			this.cashButton.classList.remove('button_alt-active');
+		} else if (this.cardButton.classList.contains('button_alt-active')) {
+			this.cardButton.classList.remove('button_alt-active');
+		}
 	}
 }

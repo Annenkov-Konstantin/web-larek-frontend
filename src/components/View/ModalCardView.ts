@@ -1,8 +1,6 @@
 import { CardView } from './CardView';
-import { IItemModel } from '../../types';
 import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
-import { IItemClicked } from '../../types';
 import { checkBasket } from '../..';
 
 export enum ModalCardViewEvents {

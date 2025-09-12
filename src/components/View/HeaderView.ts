@@ -4,7 +4,7 @@ import { IEvents } from '../base/events';
 import { ComponentView } from '../base/ComponentView';
 
 interface IHeaderView {
-	basketCounter: number;
+	basketCounter: ItemsQuantity;
 }
 
 export enum HeaderEvents {
@@ -32,7 +32,7 @@ export class HeaderView extends ComponentView<IHeaderView> {
 		});
 	}
 
-	set basketCounter(quantity: number) {
+	set basketCounter(quantity: ItemsQuantity) {
 		this.basketCounterElement.textContent = String(quantity);
 	}
 }

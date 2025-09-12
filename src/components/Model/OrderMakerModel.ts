@@ -1,47 +1,40 @@
-import { IOrderModel, IOrderMakerModel, Payment } from '../../types';
+import { IOrderModel, IOrderMakerModel, OrderData } from '../../types';
 import { IEvents } from '../base/events';
 import { ItemsId } from '../../types';
 
 export enum OrderModelEvents {
-	PaymentWayAdded = 'paymentWay:added',
 	OrderDataCreated = 'order:created',
 }
 
 export class OrderMakerModel implements IOrderMakerModel {
-	protected _order: IOrderModel;
+	protected _order: OrderData;
 	protected events: IEvents;
-	protected items: string[];
 
 	constructor(events: IEvents) {
 		this._order = {
 			payment: '',
-			totalPrice: 0,
-			items: [],
+			total: 0,
 		};
 		this.events = events;
 	}
 
-	setOrderData(orderData: Partial<IOrderModel>): void {
-		if (orderData) {
-			Object.assign(this._order, orderData);
-			this.events.emit(OrderModelEvents.OrderDataCreated);
-		}
-	}
-
-	setItems(items: string[]) {
-		this.items = [...items];
-	}
-
-	setPayment(value: IOrderModel['payment']) {
+	setPayment(value: OrderData['payment']) {
 		this._order.payment = value;
 	}
-	 
-	getPayment() {
-		return this._order.payment;
-	} 
 
-	get order(): IOrderModel {
-		Object.assign(this._order, this.items);
+	setTotalPrice(totalPrice: OrderData['total']): void {
+		this._order.total = totalPrice;
+		this.events.emit(OrderModelEvents.OrderDataCreated);
+	}
+
+	get order(): OrderData {
 		return this._order;
+	}
+
+	clearOrdeData() {
+		this._order = {
+			payment: '',
+			total: 0,
+		};
 	}
 }

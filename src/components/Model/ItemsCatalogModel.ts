@@ -27,11 +27,7 @@ export class ItemsCatalogModel implements IItemsCatalogModel {
 
 	set catalog(catalog: IItemModel[]) {
 		this._catalog = this.processImagesSrc(catalog);
-		//---------
-		console.log(
-			'Каталог товаров инициализирован и установлен url для картинок'
-		);
-		//---------
+
 		this.events.emit(CatalogModelEvents.Initialized);
 	}
 
@@ -43,9 +39,6 @@ export class ItemsCatalogModel implements IItemsCatalogModel {
 		const itemIndex = this._catalog.findIndex((item) => item.id === id);
 		if (itemIndex !== -1) {
 			this._selectedItem = this._catalog[itemIndex];
-			//----------
-			console.log('Карточка выбрана и сохранена: ' + this._selectedItem.title);
-			//----------
 			this.events.emit(CatalogModelEvents.ItemSelected);
 		} else {
 			console.log('Нет товара с таким id!');
@@ -57,7 +50,6 @@ export class ItemsCatalogModel implements IItemsCatalogModel {
 	}
 
 	get selectedItem(): IItemModel {
-		console.log('Карточка сохранена и отправлена');
 		return this._selectedItem;
 	}
 

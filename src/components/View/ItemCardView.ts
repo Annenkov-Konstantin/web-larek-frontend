@@ -4,7 +4,6 @@ import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
 
 export enum GalleryViewEvents {
-	//ItemsDisplayed = 'itemsGallery:displayed', - не нужно?
 	GalleryButtonClicked = 'itemsGalleryButton:clicked',
 }
 
@@ -28,12 +27,11 @@ export class ItemCardView extends CardView<IItemModel> {
 			this.container
 		) as HTMLImageElement;
 
-
 		this.categoryElement = ensureElement('.card__category', this.container);
 
 		this.container.addEventListener('click', () => {
 			this.events.emit(GalleryViewEvents.GalleryButtonClicked, {
-				item: this.cardId
+				item: this.cardId,
 			});
 		});
 	}
