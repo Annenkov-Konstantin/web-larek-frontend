@@ -1,6 +1,7 @@
 import { ComponentView } from '../base/ComponentView';
 import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
+import { IComponentView } from '../base/ComponentView';
 
 export abstract class FormView<T> extends ComponentView<T> {
 	protected form: HTMLFormElement;
@@ -43,4 +44,8 @@ export abstract class FormView<T> extends ComponentView<T> {
 			this.submitButton.setAttribute('disabled', '');
 		}
 	}
+
+	/* 	updateSubmitButton(buttonState: boolean, form: IComponentView) {
+		form.render({ buttonState });
+	} */
 }

@@ -1,39 +1,64 @@
-import { IOrderMakerModel, OrderData } from '../../types';
+import {
+	IOrderMakerModel,
+	IOrderModel,
+	IBasketItem,
+	ICustomerModel,
+	IFinalOrderData,
+} from '../../types';
 import { IEvents } from '../base/events';
 
 export enum OrderModelEvents {
 	OrderDataCreated = 'order:created',
+	OrderPaymentSet = 'payment:set',
 }
 
 export class OrderMakerModel implements IOrderMakerModel {
-	protected _order: OrderData;
+	protected _orderPayment: IOrderModel['payment'];
 	protected events: IEvents;
 
 	constructor(events: IEvents) {
-		this._order = {
-			payment: '',
-			total: 0,
-		};
+		this._orderPayment = '';
 		this.events = events;
 	}
 
-	setPayment(value: OrderData['payment']): void {
-		this._order.payment = value;
+	setPayment(value: IOrderModel['payment']): void {
+		if (value) {
+			this._orderPayment = value;
+		} else {
+			this._orderPayment = '';
+		}
+		this.events.emit(OrderModelEvents.OrderPaymentSet, { payment: true });
 	}
 
-	setTotalPrice(totalPrice: OrderData['total']): void {
-		this._order.total = totalPrice;
-		this.events.emit(OrderModelEvents.OrderDataCreated);
+	checkForm(firstValue: string, secondValue: string) {
+		return firstValue.length > 0 && secondValue.length > 0;
 	}
 
-	get order(): OrderData {
-		return this._order;
+	createOrdeData(
+		itemsList: string[],
+		totalPrice: IBasketItem['totalPrice'],
+		customerData: ICustomerModel
+	): IFinalOrderData {
+		const order = {
+			payment: this._orderPayment,
+			email: customerData.email,
+			phone: customerData.phone,
+			address: customerData.address,
+			total: totalPrice,
+			items: itemsList,
+		};
+		if (order) {
+			return order;
+		} else {
+			console.log('Заказ не сформирован');
+		}
 	}
+
+	/* 	get order(): IOrderModel['payment'] {
+		return this._orderPayment;
+	} */
 
 	clearOrdeData(): void {
-		this._order = {
-			payment: '',
-			total: 0,
-		};
+		this._orderPayment = '';
 	}
 }

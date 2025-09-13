@@ -34,8 +34,6 @@ export class ModallSuccessView extends ComponentView<ISuccess> {
 	set success(value: number) {
 		if (value > 0) {
 			this.descriptionElement.textContent = `Списано ${String(value)} синапсов`;
-		} else {
-			this.descriptionElement.textContent = `Списано 0 синапсов`;
 		}
 	}
 }

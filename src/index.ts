@@ -24,6 +24,7 @@ import {
 	CustomerDataContacts,
 	FinalOrderData,
 	ResponseSuccess,
+	IItemEventPayload,
 } from './types/index';
 
 import { ensureElement, cloneTemplate } from './utils/utils';
@@ -185,12 +186,10 @@ export function checkBasket(id: string) {
 }
 
 function displayBusket() {
-	let itemNumber = 1;
-	const basketList = basketModel.itemsList.map((item) => {
+	const basketList = basketModel.itemsList.map((item, itemsNumber) => {
 		const liElementClone = previewItemInList.cloneNode(true) as HTMLLIElement;
 		const itemLiInstant = new CardBasketView(liElementClone, eventEmitter);
-		itemLiInstant.setNumberInList(itemNumber);
-		itemNumber += 1;
+		itemLiInstant.setNumberInList(itemsNumber + 1);
 		return itemLiInstant.render(item);
 	});
 
@@ -202,22 +201,22 @@ function displayBusket() {
 	return itemsInBusket;
 }
 
-function checkForm(firstValue: string, secondValue: string) {
+/* function checkForm(firstValue: string, secondValue: string) {
 	return firstValue.length > 0 && secondValue.length > 0;
 }
 
 function updateSubmitButton(buttonState: boolean, form: IComponentView) {
 	form.render({ buttonState });
-}
+} */
 
-let formState = {
+/* let formState = {
 	address: '',
 	payment: '',
 	email: '',
 	phone: '',
 };
-
-function checkError(
+ */
+/* function checkError(
 	value: string,
 	endOfMessage: string,
 	form: IComponentView
@@ -231,8 +230,8 @@ function checkError(
 			spanErrors: '',
 		});
 	}
-}
-// Главная подписка на первоначальную загрузку и сохранение данных
+} */
+// Подписка на первоначальную загрузку и сохранение данных
 eventEmitter.on(CatalogModelEvents.Initialized, () => {
 	// Получаем массив обработанных и сохранённых данных из модели
 	const itemsCatalog: IItemModel[] = itemsCatalogModel.catalog;
@@ -271,49 +270,39 @@ eventEmitter.on(CatalogModelEvents.ItemSelected, () => {
 
 // Подписка на событие клика по кнопке закрытия модалки
 eventEmitter.on(ModalWrapperEvents.CloseButtonClicked, () => {
-	if (modalCardView.isUsed) {
-		itemsCatalogModel.clearSelectedItem();
-		modalCardView.clearProperties();
-	}
-
-	if (basketListView.isUsed()) {
-		basketListView.clearProperties();
-	}
 	modalWrapperView.closemodalWrapperAndClear();
 });
 
-// Подписка на событие клика по кнопке Добавить в корзину
-eventEmitter.on<ItemsId>(
+// Подписка на событие клика по кнопке Добавить/Удалить
+eventEmitter.on<IItemEventPayload>(
 	ModalCardViewEvents.CardPreviewButtonClicked,
 	(payload) => {
-		const { id } = payload;
+		const { id, source } = payload;
 		const result = checkBasket(id);
 		if (result) {
-			basketModel.removeItem(id);
+			basketModel.removeItem(id, { source });
 		} else {
 			basketModel.addItem(itemsCatalogModel.getItem(id));
-			basketModel.getQuantity;
 		}
 	}
 );
 
-// Подписка на добавление товара в корзину
+// Подписка на добавление товара
 eventEmitter.on<ItemsId>(BasketModelEvents.ItemAdded, () => {
 	modalCardView.buttonToDelete();
 	headerView.basketCounter = basketModel.getQuantity();
 });
 
-// Подписка на удаление товара из корзины
-eventEmitter.on<ItemsId>(BasketModelEvents.ItemDeleted, () => {
-	if (modalCardView.isUsed) {
+// Подписка на удаление товара
+eventEmitter.on<IItemEventPayload>(BasketModelEvents.ItemDeleted, (payload) => {
+	const { source } = payload;
+	if (source === 'modal') {
 		modalCardView.buttonToBuy();
+	} else if (source === 'basket') {
+		const itemsInBusket = displayBusket();
+		basketListView.render(itemsInBusket);
 	}
-
 	headerView.basketCounter = basketModel.getQuantity();
-	if (basketListView.isUsed()) {
-		basketListView.clearProperties();
-		basketListView.render(displayBusket());
-	}
 });
 
 // Подписка на клик по кнопке корзины
@@ -324,17 +313,16 @@ eventEmitter.on(HeaderEvents.BusketButtonClicked, function () {
 });
 
 // Подписка на нажатие кнопки удаления товара из Списка Корзины
-eventEmitter.on<ItemsId>(
+eventEmitter.on<IItemEventPayload>(
 	CardBasketViewEvents.ButtonDeleteClecked,
 	(payload) => {
-		const { id } = payload;
-		basketModel.removeItem(id);
+		const { id, source } = payload;
+		basketModel.removeItem(id, { source });
 	}
 );
 
 // Подписка на событие нажатия кнопки Оформить Список Товаров
 eventEmitter.on(BasketListViewEvents.buttonToOrderClicked, () => {
-	basketListView.clearProperties();
 	const orderForm = orderFormView.render();
 	modalWrapperView.insertContentAndDisplay(orderForm);
 });
@@ -342,9 +330,12 @@ eventEmitter.on(BasketListViewEvents.buttonToOrderClicked, () => {
 // Подписка на событие выбора формы оплаты
 eventEmitter.on<Payment>(OrderFormEvents.PaymentChoosed, (payload) => {
 	const { payment } = payload;
-	formState.payment = payment;
 	orderMakerModel.setPayment(payment);
+});
 
+// Подписка на событие сохранения формы оплаты
+eventEmitter.on<Payment>(OrderModelEvents.OrderPaymentSet, (payload) => {
+	const { payment } = payload;
 	orderFormView.render({ [payment]: true });
 
 	updateSubmitButton(
@@ -353,6 +344,7 @@ eventEmitter.on<Payment>(OrderFormEvents.PaymentChoosed, (payload) => {
 	);
 });
 
+/*
 // Подписка на событие input адреса в форме Заказа
 eventEmitter.on<Address>(OrderFormEvents.AddressInputChanged, (payload) => {
 	const { address } = payload;
@@ -397,20 +389,20 @@ eventEmitter.on<Phone>(ContactsFormEvents.PhoneInputChanged, (payload) => {
 		checkForm(formState.email, formState.phone),
 		contactsFormView
 	);
-});
+}); */
 
 // Подписка на событие submit  формы Контактов
-eventEmitter.on<CustomerDataContacts>(ContactsFormEvents.Submit, (payload) => {
+/* eventEmitter.on<CustomerDataContacts>(ContactsFormEvents.Submit, (payload) => {
 	const { email, phone } = payload;
 	customerProcessingModel.setCustomerData({ email, phone });
 
 	orderMakerModel.setTotalPrice(basketModel.getTotalPrice());
-});
+}); */
 
-// Подписка на окончательное создание заказа
+/* // Подписка на окончательное создание заказа
 eventEmitter.on(OrderModelEvents.OrderDataCreated, () => {
 	const customer = customerProcessingModel.data;
-	const order = orderMakerModel.order;
+	const order = basketModel.getTotalPrice();
 	const items = basketModel.getItemsId();
 
 	const orderFoRequest: FinalOrderData = {
@@ -450,7 +442,7 @@ eventEmitter.on(OrderModelEvents.OrderDataCreated, () => {
 // Подписка на закрытие модального окна Success
 eventEmitter.on(SuccessEvents.SuccessButtonClicked, () => {
 	modalWrapperView.closemodalWrapperAndClear();
-});
+}); */
 
 // Подключение к серверу для получения данных
 api

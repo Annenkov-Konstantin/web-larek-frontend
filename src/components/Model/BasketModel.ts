@@ -1,5 +1,5 @@
 import { IEvents } from '../base/events';
-import { IBasketModel, ItemBasket } from '../../types';
+import { IBasketModel, ItemBasket, IBasketItem } from '../../types';
 
 export enum BasketModelEvents {
 	ItemAdded = 'item:added',
@@ -20,12 +20,14 @@ export class BasketModel implements IBasketModel {
 		this.events.emit(BasketModelEvents.ItemAdded);
 	}
 
-	removeItem(id: string): void {
+	removeItem(id: string, options: { source: 'modal' | 'basket' }): void {
 		const itemIndex = this._itemsList.findIndex((item) => item.id === id);
 		if (itemIndex !== -1) {
-			const item = this._itemsList[itemIndex];
 			this._itemsList.splice(itemIndex, 1);
-			this.events.emit(BasketModelEvents.ItemDeleted);
+			this.events.emit(BasketModelEvents.ItemDeleted, {
+				id,
+				source: options?.source,
+			});
 			return;
 		}
 	}
@@ -46,7 +48,7 @@ export class BasketModel implements IBasketModel {
 		return itemsId;
 	}
 
-	getTotalPrice(): number {
+	getTotalPrice(): IBasketItem['totalPrice'] {
 		if (this._itemsList.length > 0) {
 			const totalPrice = this._itemsList.reduce((previousPrice, item) => {
 				return previousPrice + +item.price;

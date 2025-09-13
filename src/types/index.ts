@@ -19,7 +19,7 @@ export interface IItemsCatalogModel {
 export interface IBasketModel {
 	itemsList: ItemBasket[];
 	addItem(item: ItemBasket): void;
-	removeItem(id: string): void;
+	removeItem(id: string, options: { source: 'modal' | 'basket' }): void;
 	getQuantity(): number;
 	getItemsId(): string[];
 	getTotalPrice(): number;
@@ -45,14 +45,19 @@ export interface ICustomerProcessingModel {
 
 export interface IOrderModel extends ICustomerModel {
 	payment: 'card' | 'cash' | '';
-	total: number;
-	items: string[];
+}
+
+export interface IItemEventPayload extends ItemsId {
+	source: 'modal' | 'basket'; // Откуда произошло действие
 }
 
 export interface IOrderMakerModel {
-	order: OrderData;
-	setPayment(value: OrderData['payment']): void;
-	setTotalPrice(totalPrice: OrderData['total']): void;
+	setPayment(value: IOrderModel['payment']): void;
+	createOrdeData(
+		itemsList: string[],
+		totalPrice: IBasketItem['totalPrice'],
+		customerData: ICustomerModel
+	): IFinalOrderData;
 	clearOrdeData(): void;
 }
 
@@ -61,6 +66,11 @@ export interface IOrderForm {
 	buttonState: boolean;
 	card?: boolean;
 	cash?: boolean;
+}
+
+export interface IFinalOrderData extends IOrderModel {
+	total: IBasketItem['totalPrice'];
+	items: string[];
 }
 
 export interface ISuccess {
@@ -85,8 +95,6 @@ export type ItemBasket = Pick<IItemModel, 'id' | 'title' | 'price'>;
 export type Payment = Pick<IOrderModel, 'payment'>;
 
 export type Address = Pick<ICustomerModel, 'address'>;
-
-export type OrderData = Pick<IOrderModel, 'payment' | 'total'>;
 
 export type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
 

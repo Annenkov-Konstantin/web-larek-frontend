@@ -7,19 +7,18 @@ export enum ModalCardViewEvents {
 	CardPreviewButtonClicked = 'cardPreviewButton:clicked',
 }
 
-const softToSpecific: Record<string, string> = {
+const replacements: Record<string, string> = {
 	'софт-скил': 'card__category_soft',
 	дополнительное: 'card__category_additional',
 	кнопка: 'card__category_button',
 	'хард-скил': 'card__category_hard',
 };
 
-export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
+export class ModalCardView<T> extends CardView<T> {
 	protected imageElement: HTMLImageElement;
 	protected categoryElement: HTMLSpanElement;
 	protected descriptionElement: HTMLParagraphElement;
 	protected buttonElement: HTMLButtonElement;
-	protected thisUsed: boolean;
 
 	constructor(container: HTMLElement, events: IEvents) {
 		super(container, events);
@@ -40,11 +39,10 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 			this.container
 		) as HTMLButtonElement;
 
-		this.thisUsed = false;
-
 		this.buttonElement.addEventListener('click', () => {
 			this.events.emit(ModalCardViewEvents.CardPreviewButtonClicked, {
 				id: this.cardId,
+				source: 'modal',
 			});
 		});
 	}
@@ -56,15 +54,16 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 	set category(value: string) {
 		this.categoryElement.textContent = value;
 
-		const newClass = softToSpecific[value];
-		if (
-			newClass &&
-			this.categoryElement.classList.contains('card__category_other')
-		) {
-			this.categoryElement.classList.replace('card__category_other', newClass);
-		}
+		const text = this.categoryElement.textContent;
+		const categoryClass =
+			text in replacements
+				? replacements[text as keyof typeof replacements]
+				: 'card__category_other';
+
+		// Устанавливаем базовые классы + категорийный класс
+		this.categoryElement.className = `card__category ${categoryClass}`;
+
 		this.buttonState();
-		this.thisUsed = true;
 	}
 
 	set description(value: string) {
@@ -75,9 +74,8 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 	public override set price(value: number | null) {
 		// сначала выполняем «базовый» рендер цены
 		super.price = value;
-
 		// потом добавляем свою логику для кнопки
-		if (value === null) {
+		if (!value) {
 			this.buttonElement.setAttribute('disabled', '');
 			this.buttonElement.textContent = 'Недоступно';
 		}
@@ -85,6 +83,9 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 
 	buttonState(): void {
 		checkBasket(this.cardId) ? this.buttonToDelete() : this.buttonToBuy();
+		if (this.buttonElement.hasAttribute('disabled')) {
+			this.buttonElement.removeAttribute('disabled');
+		}
 	}
 
 	buttonToBuy(): void {
@@ -93,22 +94,5 @@ export class ModalCardView<IItemClicked> extends CardView<IItemClicked> {
 
 	buttonToDelete(): void {
 		this.buttonElement.textContent = 'Удалить из корзины';
-	}
-
-	isUsed(): boolean {
-		return this.thisUsed;
-	}
-
-	clearProperties(): void {
-		this.imageElement.src = '';
-		this.categoryElement.textContent = '';
-		this.categoryElement.className = 'card__category card__category_other'; // сбросить классы
-		this.descriptionElement.textContent = '';
-		this.buttonElement.textContent = 'Купить';
-		this.buttonElement.removeAttribute('disabled');
-		this.thisUsed = false;
-		this.titleElement.textContent = '';
-		this.cardId = '';
-		this.priceElement.textContent = '';
 	}
 }

@@ -26,6 +26,7 @@ export class CardBasketView<ItemBasket> extends CardView<ItemBasket> {
 		this.buttonDeleteElement.addEventListener('click', () => {
 			this.events.emit(CardBasketViewEvents.ButtonDeleteClecked, {
 				id: this.cardId,
+				source: 'basket',
 			});
 		});
 	}
