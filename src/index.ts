@@ -197,11 +197,14 @@ function displayBusket() {
 		return itemLiInstant.render(item);
 	});
 
+	const totalPrice = basketModel.getTotalPrice();
 	const itemsInBusket: IBasketItem = {
 		totalPrice: basketModel.getTotalPrice(),
 		item: basketList as HTMLLIElement[],
 	};
-
+	if (basketListView) {
+		basketListView.totalPrice = totalPrice;
+	}
 	return itemsInBusket;
 }
 
@@ -287,12 +290,19 @@ eventEmitter.on<IItemEventPayload>(
 // Подписка на добавление товара
 eventEmitter.on<ItemsId>(BasketModelEvents.ItemAdded, () => {
 	modalCardView.buttonToDelete();
+	if (basketListView) {
+		basketListView.totalPrice = basketModel.getTotalPrice();
+	}
 	headerView.basketCounter = basketModel.getQuantity();
 });
 
 // Подписка на удаление товара
 eventEmitter.on<IItemEventPayload>(BasketModelEvents.ItemDeleted, (payload) => {
 	const { source } = payload;
+	if (basketListView) {
+		basketListView.totalPrice = basketModel.getTotalPrice();
+	}
+
 	if (source === 'modal') {
 		modalCardView.buttonToBuy();
 	} else if (source === 'basket') {
@@ -306,6 +316,7 @@ eventEmitter.on<IItemEventPayload>(BasketModelEvents.ItemDeleted, (payload) => {
 eventEmitter.on(HeaderEvents.BusketButtonClicked, function () {
 	const itemsInBusket = displayBusket();
 	const busketListUlContainer = basketListView.render(itemsInBusket);
+	basketListView.totalPrice = basketModel.getTotalPrice();
 	modalWrapperView.insertContentAndDisplay(busketListUlContainer);
 });
 

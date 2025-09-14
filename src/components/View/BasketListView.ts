@@ -36,8 +36,10 @@ export class BasketListView extends ComponentView<IBasketItem> {
 
 	set totalPrice(value: number) {
 		this.basketTotalPriceElement.textContent = String(value) + ' синапсов';
-		if (this.basketTotalPriceElement.textContent === '0 синапсов') {
+		if (value === 0) {
 			this.buttonToOrder.setAttribute('disabled', '');
+		} else {
+			this.buttonToOrder.removeAttribute('disabled');
 		}
 	}
 
