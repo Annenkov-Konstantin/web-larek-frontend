@@ -44,8 +44,4 @@ export abstract class FormView<T> extends ComponentView<T> {
 			this.submitButton.setAttribute('disabled', '');
 		}
 	}
-
-	/* 	updateSubmitButton(buttonState: boolean, form: IComponentView) {
-		form.render({ buttonState });
-	} */
 }

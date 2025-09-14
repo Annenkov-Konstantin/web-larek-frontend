@@ -39,7 +39,6 @@ export interface ICustomerModel {
 
 export interface ICustomerProcessingModel {
 	data: ICustomerModel;
-	setCustomerData(userData: Partial<ICustomerModel>): void;
 	clearCustomerData(): void;
 }
 
@@ -48,16 +47,11 @@ export interface IOrderModel extends ICustomerModel {
 }
 
 export interface IItemEventPayload extends ItemsId {
-	source: 'modal' | 'basket'; // Откуда произошло действие
+	source: 'modal' | 'basket';
 }
 
 export interface IOrderMakerModel {
 	setPayment(value: IOrderModel['payment']): void;
-	createOrdeData(
-		itemsList: string[],
-		totalPrice: IBasketItem['totalPrice'],
-		customerData: ICustomerModel
-	): IFinalOrderData;
 	clearOrdeData(): void;
 }
 
@@ -66,11 +60,6 @@ export interface IOrderForm {
 	buttonState: boolean;
 	card?: boolean;
 	cash?: boolean;
-}
-
-export interface IFinalOrderData extends IOrderModel {
-	total: IBasketItem['totalPrice'];
-	items: string[];
 }
 
 export interface ISuccess {
@@ -84,7 +73,10 @@ export interface ResponseSuccess {
 
 export type ItemsId = Pick<IItemModel, 'id'>;
 
-export type FinalOrderData = ICustomerModel & IOrderModel;
+export type FinalOrderData = ICustomerModel &
+	IOrderModel &
+	Record<'total', number> &
+	Record<'items', string[]>;
 
 export type ItemsQuantity = ReturnType<IBasketModel['getQuantity']>;
 
@@ -95,8 +87,6 @@ export type ItemBasket = Pick<IItemModel, 'id' | 'title' | 'price'>;
 export type Payment = Pick<IOrderModel, 'payment'>;
 
 export type Address = Pick<ICustomerModel, 'address'>;
-
-export type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
 
 export type Email = Pick<ICustomerModel, 'email'>;
 

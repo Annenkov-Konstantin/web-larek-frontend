@@ -113,7 +113,6 @@ interface ICustomerModel {
 ```
 interface ICustomerProcessingModel {
 	data: ICustomerModel;
-	setCustomerData(userData: Partial<ICustomerModel>): void;
 	clearCustomerData(): void;
 }
 ```
@@ -123,8 +122,14 @@ interface ICustomerProcessingModel {
 ```
 interface IOrderModel extends ICustomerModel {
 	payment: 'card' | 'cash' | '';
-	total: number;
-	items: string[];
+}
+```
+
+Интерфейс для работы с модальным окном и корзиной
+
+```
+interface IItemEventPayload extends ItemsId {
+	source: 'modal' | 'basket';
 }
 ```
 
@@ -132,9 +137,7 @@ interface IOrderModel extends ICustomerModel {
 
 ```
 interface IOrderMakerModel {
-	order: OrderData;
 	setPayment(value: OrderData['payment']): void;
-	setTotalPrice(totalPrice: OrderData['total']): void;
 	clearOrdeData(): void;
 }
 ```
@@ -171,12 +174,6 @@ interface ResponseSuccess {
 
 ```
 type ItemsId = Pick<IItemModel, 'id'>;
-```
-
-Финальные данные заказа
-
-```
-type FinalOrderData = ICustomerModel & IOrderModel;
 ```
 
 Данные товара используемые в шапке при выводе количества товаров
@@ -216,6 +213,15 @@ type OrderData = Pick<IOrderModel, 'payment' | 'total'>;
 type CustomerDataContacts = Pick<ICustomer, 'phone' | 'email'>;
 type Email = Pick<ICustomerModel, 'email'>;
 type Phone = Pick<ICustomerModel, 'phone'>;
+```
+
+Данные для создания объекта для отправки на сервер
+
+```
+type FinalOrderData = ICustomerModel &
+	IOrderModel &
+	Record<'total', number> &
+	Record<'items', string[]>;
 ```
 
 ## Архитектура приложения
@@ -295,34 +301,42 @@ type Phone = Pick<ICustomerModel, 'phone'>;
 
 Класс отвечает за сохранение и добавление данных покупателя в заказ.
 
-- `constructor()`
+- `constructor(events: IEvents)` - - принимает экземпляр класса `EventEmitter` для возможности инициации событий.
 
 Класс содержит следующие поля:
 
-- `_customer: ICustomerMode` - объект с данными покупателя.
+- `_customer: ICustomerMode` - объект с данными покупателя;
+- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных;
+- `isPhoneValid: boolean` - состояние данных номера телефона покупателя;
+- `isEmailValid: boolean` - состояние данных имейла покупателя;
+- `isAddressValid: boolean` - состояние данных адреса покупателя.
 
 Класс содержит методы:
 
 - `setCustomerData(userData: Partial<ICustomerModel>): void` - сохраняет данные покупателя для заказа;
+- `getIsPhoneValid(): boolean` - возвращает состояние данных номера телефона покупателя;
+- `getIsEmailValid(): boolean` - возвращает состояние данных имейла покупателя;
+- `getIsAddressValid(): boolean` - возвращает состояние данных адреса покупателя;
 - `data: ICustomerModel` - геттер для получения данных покупателя для заказа;
-- `clearCustomerData(): void` - очищает данные покупателя после удачной покупки.
+- `clearCustomerData(): void` - очищает данные покупателя.
 
 #### Класс OrderMakerModel
 
-Класс отвечает за хранение формы оплаты и полной стоимости заказа.
+Класс отвечает за хранение формы оплаты.
 
 - `constructor(events: IEvents)` - принимает экземпляр класса `EventEmitter` для возможности инициации событий.
 
 Класс содержит поля:
 
-- `_order: OrderData` - хранит объект с информацией о форме оплаты и полной стоимости заказа;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
+- `_orderPayment: IOrderModel['payment']` - способ оплаты;
+- `isPaymentValid: boolean` - возвращает состояние данных способа оплаты;
+- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных;
 
-Класс содердит методы:
+Класс содержит методы:
 
 - `setPayment(value: OrderData['payment'])` - сохраняет выбранную форму оплаты;
-- `setTotalPrice(totalPrice: OrderData['total']): void` - сохраняет полную стоимость заказа;
-- `order: OrderData` - геттер, возвращает данные формы оплаты и полной стоимости заказа;
+- `getPaymentState(): boolean` - возвращает состояние поля способа оплаты;
+- `getOrder(): IOrderModel['payment']` - возвращает данные формы оплаты;
 - `clearOrdeData(): void` - очищает объект с данными о заказе после удачной покупки.
 
 ### Классы представления
@@ -399,7 +413,7 @@ type Phone = Pick<ICustomerModel, 'phone'>;
 
 Расширяет класс ComponentView. Предназначен для вывода списка товаров в галерею.
 
-- `constructor(containerToPasteGalary: HTMLElement)` - контейнер разметки страницы, куда будет вставлятся галерея товаров.
+- `constructor(containerToPasteGalary)` - контейнер разметки страницы, куда будет вставлятся галерея товаров.
 
 Поля класса:
 
@@ -435,16 +449,13 @@ type Phone = Pick<ICustomerModel, 'phone'>;
 - `_basketListElement: HTMLUListElement` - ссылка на элемент разметки для вставки элементов списка товаров;
 - `_buttonToOrder: HTMLButtonElement` - ссылка на кнопку для оформления товаров;
 - `basketTotalPriceElement: HTMLSpanElement` - ссылка на элемент разметки для отображения общей стоимости за весь список товаров;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий;
-- `_thisUsed: boolean` - поле, содержащее состояние активности отображения в данный момент.
+- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий.
 
 Методы класса:
 
 -`totalPrice(value: number)` - сеттер установки значения общей стоимости;
 
-- `item(item: HTMLLIElement[])` - сеттер установки элементов в список;
-- `isUsed(): boolean` - помогает отследить, отображался ли в данный момент данный контейнер;
-- `clearProperties(): void` - сброс состояния в дефолтное.
+- `item(item: HTMLLIElement[])` - сеттер установки элементов в список.
 
 #### Класс ModalCardView
 
@@ -457,20 +468,17 @@ type Phone = Pick<ICustomerModel, 'phone'>;
 - `_imageElement: HTMLImageElement` - ссылка на элемент отображения картики товара;
 - `_categoryElement: HTMLSpanElement` - ссылка на на элемент отображения текста и стиля категории товара;
 - `_descriptionElement: HTMLParagraphElement` - ссылка на на элемент отображения текста описания товара;
-- `_buttonElement: HTMLButtonElement` - ссылка на кнопку добавления/удаления товара в модальнолм окне;
-- `_thisUsed: boolean` - поле, содержащее состояние активности отображения в данный момент.
+- `_buttonElement: HTMLButtonElement` - ссылка на кнопку добавления/удаления товара в модальнолм окне.
 
   Методы класса:
 
-- `image(src: string) HTMLElement` - сеттер для установки отображения ссылки на картинку;
+- `image(src: string)` - сеттер для установки отображения ссылки на картинку;
 - `category(value: string)` - сеттер для установки текста и стиля категории товара;
 - `description(value: string)` - сеттер для установки текста описания товара;
 - `override set price(value: number | null)` - переопределение родительского сеттера тображения цены товара;
 - `buttonState(): void` - управляет переключением текста кнопки добавления/удаления товара в модальнолм окне;
 - `buttonToBuy(): void` - переключает текст кнопки в состояние "Купить", если товар не был добавлен в корзину;
-- `buttonToDelete(): void` - переключает текст кнопки в состояние "Удалить из корзины", если товар был добавлен в корзину;
-- `isUsed(): boolean` - помогает отследить, отображался ли в данный момент данный контейнер;
-- `clearProperties(): void` - сбрасывает состояние контейнера с его элементами отображения в дефолтное.
+- `buttonToDelete(): void` - переключает текст кнопки в состояние "Удалить из корзины", если товар был добавлен в корзину.
 
 #### Класс ModalWrapperView
 
@@ -572,6 +580,8 @@ _События изменения данных (генерируются кла
 - `item:added` - товар добавлен в корзину;
 - `item:deleted` - товар удалён из корзины;
 - `order:created` - заказ сформирован;
+- `customerData:changed` - данные пользователя изменены;
+- `payment:set` - установка выбора оплаты.
 
 _События, возникающие при взаимодействии пользователя с интерфейсом (генерируются классами, отвечающими за представление)_
 

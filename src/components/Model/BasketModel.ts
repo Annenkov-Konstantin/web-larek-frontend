@@ -47,7 +47,7 @@ export class BasketModel implements IBasketModel {
 		});
 		return itemsId;
 	}
-
+	
 	getTotalPrice(): IBasketItem['totalPrice'] {
 		if (this._itemsList.length > 0) {
 			const totalPrice = this._itemsList.reduce((previousPrice, item) => {

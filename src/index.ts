@@ -21,10 +21,11 @@ import {
 	Address,
 	Email,
 	Phone,
-	CustomerDataContacts,
-	FinalOrderData,
 	ResponseSuccess,
 	IItemEventPayload,
+	ICustomerModel,
+	IOrderModel,
+	FinalOrderData,
 } from './types/index';
 
 import { ensureElement, cloneTemplate } from './utils/utils';
@@ -72,7 +73,10 @@ import {
 	OrderFormEvents,
 } from './components/View/OrderFormView';
 
-import { CustomerProcessingModel } from './components/Model/CustomerProcessingModel';
+import {
+	CustomerProcessingModel,
+	CustomerProcessingModelEvents,
+} from './components/Model/CustomerProcessingModel';
 
 import {
 	ContactsFormView,
@@ -159,7 +163,7 @@ const headerView = new HeaderView(headerContainer, eventEmitter);
 const basketModel = new BasketModel(eventEmitter);
 
 // Создание объекта Модели обработки данных покупателя
-const customerProcessingModel = new CustomerProcessingModel();
+const customerProcessingModel = new CustomerProcessingModel(eventEmitter);
 
 // Создание объекта Отображения списка Корзины
 const basketListView = new BasketListView(basketContainerElement, eventEmitter);
@@ -201,36 +205,29 @@ function displayBusket() {
 	return itemsInBusket;
 }
 
-/* function checkForm(firstValue: string, secondValue: string) {
-	return firstValue.length > 0 && secondValue.length > 0;
+function updateSubmitButton(
+	firstValue: boolean,
+	secondvalue: boolean,
+	form: IComponentView
+) {
+	form.render({
+		buttonState: firstValue && secondvalue,
+	});
 }
 
-function updateSubmitButton(buttonState: boolean, form: IComponentView) {
-	form.render({ buttonState });
-} */
-
-/* let formState = {
-	address: '',
-	payment: '',
-	email: '',
-	phone: '',
-};
- */
-/* function checkError(
+function showError(
 	value: string,
 	endOfMessage: string,
-	form: IComponentView
+	form: IComponentView,
+	state: boolean
 ): void {
-	if (value.length === 0) {
-		form.render({
-			spanErrors: errorMessage + endOfMessage,
-		});
+	if (!state) {
+		form.render({ spanErrors: value + endOfMessage });
 	} else {
-		form.render({
-			spanErrors: '',
-		});
+		form.render({ spanErrors: '' });
 	}
-} */
+}
+
 // Подписка на первоначальную загрузку и сохранение данных
 eventEmitter.on(CatalogModelEvents.Initialized, () => {
 	// Получаем массив обработанных и сохранённых данных из модели
@@ -333,88 +330,123 @@ eventEmitter.on<Payment>(OrderFormEvents.PaymentChoosed, (payload) => {
 	orderMakerModel.setPayment(payment);
 });
 
+let isPaymentValid = false;
+let isAddressValid = false;
+let isEmailValid = false;
+let isPhoneValid = false;
+
 // Подписка на событие сохранения формы оплаты
-eventEmitter.on<Payment>(OrderModelEvents.OrderPaymentSet, (payload) => {
-	const { payment } = payload;
-	orderFormView.render({ [payment]: true });
+eventEmitter.on(
+	OrderModelEvents.OrderPaymentSet,
+	(payload: Record<string, boolean>) => {
+		const paymentKey = Object.keys(payload)[0];
+		orderFormView.render({ [paymentKey]: paymentKey });
+		isPaymentValid = orderMakerModel.getPaymentState();
+		updateSubmitButton(isPaymentValid, isAddressValid, orderFormView);
+	}
+);
 
-	updateSubmitButton(
-		checkForm(formState.payment, formState.address),
-		orderFormView
-	);
-});
+// Подписка на событие сохранения данных Покупателя
+eventEmitter.on(
+	CustomerProcessingModelEvents.CustomerDataCustomerChanged,
+	(payload: Record<string, string>) => {
+		let obj = Object.keys(payload)[0];
+		let value = payload[obj];
+		if (value === 'address') {
+			isAddressValid = customerProcessingModel.getIsAddressValid();
+			updateSubmitButton(isPaymentValid, isAddressValid, orderFormView);
+			showError(errorMessage, ' адрес', orderFormView, isAddressValid);
+		} else if (value === 'email') {
+			isEmailValid = customerProcessingModel.getIsEmailValid();
+			updateSubmitButton(isEmailValid, isPhoneValid, contactsFormView);
+			showError(errorMessage, ' имейл', contactsFormView, isEmailValid);
+		} else if (value === 'phone') {
+			isPhoneValid = customerProcessingModel.getIsPhoneValid();
+			updateSubmitButton(isEmailValid, isPhoneValid, contactsFormView);
+			showError(
+				errorMessage,
+				' номер телефона',
+				contactsFormView,
+				isPhoneValid
+			);
+		}
+	}
+);
 
-/*
 // Подписка на событие input адреса в форме Заказа
-eventEmitter.on<Address>(OrderFormEvents.AddressInputChanged, (payload) => {
-	const { address } = payload;
-	formState.address = address;
-	checkError(address, ' адрес', orderFormView);
-
-	updateSubmitButton(
-		checkForm(formState.payment, formState.address),
-		orderFormView
-	);
-});
+eventEmitter.on<Address>(
+	OrderFormEvents.AddressInputChanged,
+	(payload: Record<string, string>) => {
+		const { address } = payload;
+		customerProcessingModel.setCustomerData({ address });
+		updateSubmitButton(isPaymentValid, isAddressValid, orderFormView);
+		showError(errorMessage, ' адрес', orderFormView, isAddressValid);
+	}
+);
 
 // Подписка на событие submit формы Заказа
-eventEmitter.on<Address>(OrderFormEvents.Submit, (payload) => {
-	const { address } = payload;
-	if (checkForm(formState.payment, formState.address)) {
-		customerProcessingModel.setCustomerData({ address: address });
-	}
+eventEmitter.on(OrderFormEvents.Submit, () => {
 	const contactsForm = contactsFormView.render({});
 	modalWrapperView.insertContentAndDisplay(contactsForm);
+	isPaymentValid = false;
+	isAddressValid = false;
 });
 
 // Подписка на событие input в поле email формы Контактов
-eventEmitter.on<Email>(ContactsFormEvents.EmailInputChanged, (payload) => {
-	const { email } = payload;
-	formState.email = email;
-	checkError(email, ' имейл', contactsFormView);
-
-	updateSubmitButton(
-		checkForm(formState.email, formState.phone),
-		contactsFormView
-	);
-});
+eventEmitter.on<Email>(
+	ContactsFormEvents.EmailInputChanged,
+	(payload: Record<string, string>) => {
+		const { email } = payload;
+		customerProcessingModel.setCustomerData({ email });
+		updateSubmitButton(isEmailValid, isPhoneValid, contactsFormView);
+		showError(errorMessage, ' имейл', contactsFormView, isEmailValid);
+	}
+);
 
 // Подписка на событие input в поле Номер Телефона формы Контактов
 eventEmitter.on<Phone>(ContactsFormEvents.PhoneInputChanged, (payload) => {
 	const { phone } = payload;
-	formState.phone = phone;
-	checkError(phone, ' номер телефона', contactsFormView);
+	customerProcessingModel.setCustomerData({ phone });
+	updateSubmitButton(isEmailValid, isPhoneValid, contactsFormView);
+	showError(errorMessage, ' номер телефона', contactsFormView, isPhoneValid);
+});
 
-	updateSubmitButton(
-		checkForm(formState.email, formState.phone),
-		contactsFormView
-	);
-}); */
+enum OrderCreashionEvent {
+	OrderDataCreated = 'order:created',
+}
 
-// Подписка на событие submit  формы Контактов
-/* eventEmitter.on<CustomerDataContacts>(ContactsFormEvents.Submit, (payload) => {
-	const { email, phone } = payload;
-	customerProcessingModel.setCustomerData({ email, phone });
-
-	orderMakerModel.setTotalPrice(basketModel.getTotalPrice());
-}); */
-
-/* // Подписка на окончательное создание заказа
-eventEmitter.on(OrderModelEvents.OrderDataCreated, () => {
-	const customer = customerProcessingModel.data;
-	const order = basketModel.getTotalPrice();
-	const items = basketModel.getItemsId();
-
-	const orderFoRequest: FinalOrderData = {
-		payment: order.payment,
-		email: customer.email,
-		phone: customer.phone,
-		address: customer.address,
-		total: order.total,
+function createTheOrder(
+	items: string[],
+	totalPrice: IBasketItem['totalPrice'],
+	customerData: ICustomerModel,
+	payment: IOrderModel['payment']
+): FinalOrderData {
+	return {
+		payment: payment,
+		email: customerData.email,
+		phone: customerData.phone,
+		address: customerData.address,
+		total: totalPrice,
 		items: items,
 	};
+}
+
+let order: FinalOrderData;
+
+// Подписка на событие submit  формы Контактов
+eventEmitter.on(ContactsFormEvents.Submit, () => {
+	const items = basketModel.getItemsId();
+	const totalPrice = basketModel.getTotalPrice();
+	const customer = customerProcessingModel.data;
+	const payment = orderMakerModel.getOrder();
+
+	order = createTheOrder(items, totalPrice, customer, payment);
+	eventEmitter.emit(OrderCreashionEvent.OrderDataCreated);
+});
+// Подписка на окончательное создание заказа
+eventEmitter.on(OrderCreashionEvent.OrderDataCreated, () => {
 	api
-		.post('/order', orderFoRequest)
+		.post('/order', order)
 		.then((result: ResponseSuccess) => {
 			basketModel.clearBasket();
 			headerView.basketCounter = basketModel.getQuantity();
@@ -422,12 +454,8 @@ eventEmitter.on(OrderModelEvents.OrderDataCreated, () => {
 			orderMakerModel.clearOrdeData();
 			orderFormView.clearForm();
 			contactsFormView.clearForm();
-			formState = {
-				address: '',
-				payment: '',
-				email: '',
-				phone: '',
-			};
+			isEmailValid = false;
+			isPhoneValid = false;
 			orderFormView.buttonState = false;
 			contactsFormView.buttonState = false;
 			modalWrapperView.insertContentAndDisplay(
@@ -442,7 +470,7 @@ eventEmitter.on(OrderModelEvents.OrderDataCreated, () => {
 // Подписка на закрытие модального окна Success
 eventEmitter.on(SuccessEvents.SuccessButtonClicked, () => {
 	modalWrapperView.closemodalWrapperAndClear();
-}); */
+});
 
 // Подключение к серверу для получения данных
 api
