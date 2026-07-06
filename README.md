@@ -1,57 +1,371 @@
-# Проектная работа "Веб-ларек"
+# 🛒 Web-ларёк
 
-Стек: HTML, SCSS, TS, Webpack
+<div align="center">
 
-Структура проекта:
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![SCSS](https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white)
+![Webpack](https://img.shields.io/badge/Webpack-8DD6F9?style=for-the-badge&logo=webpack&logoColor=black)
+![Status](https://img.shields.io/badge/Status-Online-brightgreen?style=for-the-badge)
 
-- src/ — исходные файлы проекта
-- src/components/ — папка с JS компонентами
-- src/components/base/ — папка с базовым кодом
-- src/components/Model/ - папка с классами модели данных
-- src/components/View/ - папка м классами отображения
+</div>
 
-Важные файлы:
+### Превью проекта
 
-- src/pages/index.html — HTML-файл главной страницы
-- src/types/index.ts — файл с типами
-- src/index.ts — точка входа приложения
-- src/scss/styles.scss — корневой файл стилей
-- src/utils/constants.ts — файл с константами
-- src/utils/utils.ts — файл с утилитами
+![Обложка проекта](./src/images/site-preview.webp)
 
-## Установка и запуск
+### Интерфейс сайта
 
-Для установки и запуска проекта необходимо выполнить команды
+[🔗 Посмотреть демо](https://annenkov-konstantin.github.io/web-larek/) • [💻 Исходный код](https://github.com/Annenkov-Konstantin/web-larek-frontend)
 
+Интернет-магазин на TypeScript, реализованный по паттерну **MVP (Model-View-Presenter)** с событийной архитектурой. Приложение позволяет просматривать каталог товаров, добавлять их в корзину, оформлять заказы с выбором способа оплаты и вводом контактных данных. Все данные синхронизируются с сервером через REST API.
+
+## 📄 Функциональность
+
+- **Каталог товаров** — отображение карточек с изображением, названием, категорией и ценой
+- **Карточка товара** — подробная информация о товаре в модальном окне
+- **Корзина** — добавление/удаление товаров, подсчёт общей стоимости и количества
+- **Оформление заказа** — пошаговая форма с выбором способа оплаты (онлайн/наличные) и указанием адреса
+- **Контактные данные** — форма для ввода email и телефона
+- **Подтверждение заказа** — модальное окно с суммой списанных средств
+- **Счётчик в шапке** — динамическое отображение количества товаров в корзине
+- **Модальные окна** — единая система попапов с закрытием по Esc, клику на оверлей и крестик
+
+## 🛠 Стек технологий
+
+- **Вёрстка:** HTML5, SCSS (БЭМ-методология)
+- **Язык:** TypeScript (строгая типизация)
+- **Сборка:** Webpack (Babel, CSS/SCSS loaders, dev server)
+- **Архитектура:** MVP (Model-View-Presenter) + Event-driven
+- **API:** REST API (Promise-based)
+- **Паттерны:** Observer (EventEmitter), Component-based View
+
+## ✨ Ключевые особенности
+
+### 🏗️ Архитектура MVP
+
+Приложение построено по паттерну **Model-View-Presenter** с чётким разделением ответственности:
+
+- **Model** — хранение и изменение данных, генерация событий
+- **View** — отображение данных в DOM, обработка пользовательских действий
+- **Presenter** (`index.ts`) — связывание Model и View через события
+
+### 🎯 Событийная архитектура
+
+Взаимодействие между компонентами осуществляется через **брокер событий** (`EventEmitter`):
+
+- Модели генерируют события при изменении данных
+- Представления генерируют события при взаимодействии пользователя
+- Презентер подписывается на события и координирует работу системы
+
+### 📐 Строгая типизация
+
+Все данные, методы и события типизированы через TypeScript:
+
+- Интерфейсы для моделей данных (`IItemModel`, `IBasketModel`, `ICustomerModel`)
+- Типы для частичных данных (`Pick`, `ReturnType`)
+- Типизация событий и их payload
+
+### 🎨 Модульная структура
+
+- **Базовый код** — `Api` (HTTP-запросы), `EventEmitter` (брокер событий)
+- **Модели** — `ItemsCatalogModel`, `BasketModel`, `CustomerProcessingModel`, `OrderMakerModel`
+- **Представления** — `HeaderView`, `ItemCardView`, `BasketListView`, `ModalWrapperView`, `OrderFormView`, `ContactsFormView`
+
+### ⚡ Производительность
+
+- **Webpack** — автоматическая сборка, минификация, tree-shaking
+- **Оптимизация DOM** — минимальное количество перерисовок через сеттеры
+
+### ♿ Доступность (a11y)
+
+- **Клавиатурная навигация** — закрытие модалок по Escape
+- **Focus management** — управление фокусом при открытии/закрытии попапов
+- **Семантическая вёрстка** — правильная иерархия заголовков, форм, кнопок
+
+### 🔒 Управление формами
+
+- **Блокировка отправки** — кнопка submit неактивна, пока форма не заполнена
+- **Сброс состояний** — очистка форм и данных после успешного оформления заказа
+
+## 🚀 Запуск
+
+### Самый простой способ
+
+Откройте демо-версию по ссылке: [annenkov-konstantin.github.io/web-larek](https://annenkov-konstantin.github.io/web-larek/)
+
+### Локальный запуск
+
+1. Клонируйте репозиторий:
+
+```bash
+git clone https://github.com/Annenkov-Konstantin/web-larek-frontend.git
+cd web-larek-frontend
 ```
+
+2. Установите зависимости:
+
+```bash
 npm install
-npm run start
-```
-
-или
-
-```
+# или
 yarn
+```
+
+3. Запустите dev-сервер:
+
+```bash
+npm run start
+# или
 yarn start
 ```
 
-## Сборка
+Сайт откроется по адресу `http://localhost:8080` с горячей перезагрузкой.
 
-```
+### Сборка
+
+```bash
 npm run build
-```
-
-или
-
-```
+# или
 yarn build
 ```
 
-## Данные и типы данных, используемые в приложении
+Результат сборки будет в папке `dist/`.
 
-Товар
+## 📁 Структура проекта
 
 ```
+web-larek-frontend/
+├── src/
+│   ├── components/           # Компоненты приложения
+│   │   ├── base/             # Базовый код
+│   │   │   ├── api.ts        # Класс Api для HTTP-запросов
+│   │   │   └── events.ts     # Класс EventEmitter (брокер событий)
+│   │   ├── Model/            # Слой данных (Model)
+│   │   │   ├── ItemsCatalogModel.ts   # Каталог товаров
+│   │   │   ├── BasketModel.ts         # Корзина
+│   │   │   ├── CustomerProcessingModel.ts  # Данные покупателя
+│   │   │   └── OrderMakerModel.ts     # Данные заказа
+│   │   └── View/             # Слой представления (View)
+│   │       ├── ComponentView.ts       # Базовый класс представления
+│   │       ├── HeaderView.ts          # Шапка со счётчиком корзины
+│   │       ├── CardView.ts            # Абстрактная карточка
+│   │       ├── ItemCardView.ts        # Карточка в галерее
+│   │       ├── ModalCardView.ts       # Карточка в модалке
+│   │       ├── ItemsGallaryView.ts    # Галерея товаров
+│   │       ├── BasketListView.ts      # Список корзины
+│   │       ├── CardBasketView.ts      # Элемент корзины
+│   │       ├── ModalWrapperView.ts    # Обёртка модального окна
+│   │       ├── FormView.ts            # Абстрактная форма
+│   │       ├── OrderFormView.ts       # Форма заказа
+│   │       ├── ContactsFormView.ts    # Форма контактов
+│   │       └── ModalSuccessView.ts    # Окно успеха
+│   ├── pages/
+│   │   └── index.html        # Главная страница
+│   ├── types/
+│   │   └── index.ts          # Типы данных
+│   ├── utils/
+│   │   ├── constants.ts      # Константы
+│   │   └── utils.ts          # Утилиты
+│   ├── scss/
+│   │   └── styles.scss       # Корневой файл стилей
+│   └── index.ts              # Точка входа (Presenter)
+├── package.json
+├── tsconfig.json
+├── webpack.config.js
+└── README.md
+```
+
+## 🧠 Архитектурные решения
+
+### Базовый код
+
+#### Класс `Api`
+
+Содержит базовую логику отправки HTTP-запросов. В конструктор передаётся базовый адрес сервера и объект с заголовками.
+
+**Методы:**
+
+- `get(uri: string): Promise<object>` — GET-запрос, возвращает Promise с JSON-ответом
+- `post(uri: string, data: object, method?: string): Promise<object>` — POST/PUT/DELETE запрос с телом
+
+#### Класс `EventEmitter`
+
+Брокер событий для взаимодействия между компонентами. Реализует паттерн **Observer**.
+
+**Методы (интерфейс `IEvents`):**
+
+- `on(eventName: string, handler: Function)` — подписка на событие
+- `emit(eventName: string, data?: object)` — инициация события
+- `trigger(eventName: string)` — возвращает функцию-триггер для события
+
+### Слой данных (Model)
+
+#### `ItemsCatalogModel`
+
+Хранит и обрабатывает данные каталога товаров.
+
+**Поля:**
+
+- `_catalog: IItemModel[]` — массив товаров
+- `_selectedItem: IItemModel` — выбранный товар
+
+**Методы:**
+
+- `processImagesSrc(catalog)` — обработка путей к изображениям
+- `setSelectedItem(id)` — выбор товара для модального окна
+- `clearSelectedItem()` — очистка выбранного товара
+- `getItem(id)` — получение товара для добавления в корзину
+
+#### `BasketModel`
+
+Управляет корзиной покупок.
+
+**Методы:**
+
+- `addItem(item)` — добавление товара
+- `removeItem(id)` — удаление товара
+- `getQuantity()` — количество товаров
+- `getItemsId()` — массив ID товаров
+- `getTotalPrice()` — общая стоимость
+- `clearBasket()` — очистка корзины
+
+#### `CustomerProcessingModel`
+
+Хранит данные покупателя с валидацией.
+
+**Поля:**
+
+- `_customer: ICustomerModel` — данные покупателя
+- `isPhoneValid`, `isEmailValid`, `isAddressValid` — состояния валидации
+
+**Методы:**
+
+- `setCustomerData(userData)` — сохранение данных
+- `getIsPhoneValid()`, `getIsEmailValid()`, `getIsAddressValid()` — проверка валидности
+- `clearCustomerData()` — очистка данных
+
+#### `OrderMakerModel`
+
+Хранит данные о способе оплаты.
+
+**Методы:**
+
+- `setPayment(value)` — установка способа оплаты
+- `getPaymentState()` — состояние валидности
+- `getOrder()` — получение данных оплаты
+- `clearOrdeData()` — очистка данных
+
+### Слой представления (View)
+
+#### `ComponentView` (абстрактный)
+
+Базовый класс для всех компонентов представления.
+
+**Поля:**
+
+- `_container: HTMLElement` — контейнер компонента
+
+**Методы:**
+
+- `render(data?: Partial<T>)` — обновление данных через сеттеры
+
+#### `HeaderView`
+
+Отображает счётчик товаров в корзине.
+
+**Методы:**
+
+- `basketCounter(quantity)` — установка значения счётчика
+
+#### `CardView` (абстрактный)
+
+Базовый класс для карточек товаров.
+
+**Поля:**
+
+- `_titleElement`, `_priceElement`, `_cardId`
+
+**Методы:**
+
+- `title`, `price`, `id` — сеттеры/геттеры
+
+#### `ItemCardView`
+
+Карточка товара в галерее.
+
+**Методы:**
+
+- `image(src)`, `description(value)`, `category(value)` — сеттеры
+
+#### `ModalCardView`
+
+Карточка товара в модальном окне.
+
+**Методы:**
+
+- `image(src)`, `category(value)`, `description(value)`, `price(value)` — сеттеры
+- `buttonState()`, `buttonToBuy()`, `buttonToDelete()` — управление кнопкой
+
+#### `ModalWrapperView`
+
+Обёртка модального окна с обработчиками закрытия.
+
+**Методы:**
+
+- `insertContentAndDisplay(content)` — открытие модалки
+- `closemodalWrapperAndClear()` — закрытие модалки
+
+#### `FormView` (абстрактный)
+
+Базовый класс для форм.
+
+**Методы:**
+
+- `spanErrors` — отображение ошибок
+- `buttonState` — управление активностью кнопки
+
+#### `OrderFormView`
+
+Форма заказа с выбором оплаты и адреса.
+
+**Методы:**
+
+- `card(value)`, `cash(value)` — выбор способа оплаты
+- `clearForm()` — сброс формы
+
+#### `ContactsFormView`
+
+Форма контактных данных.
+
+**Методы:**
+
+- `clearForm()` — сброс формы
+
+#### `ModalSuccessView`
+
+Окно подтверждения заказа.
+
+**Методы:**
+
+- `success(value)` — отображение суммы списания
+
+### 📊 UML-диаграмма классов
+
+Архитектура приложения по паттерну MVP. Синим цветом выделен слой данных, зелёным — слой представления, оранжевым — презентер и брокер событий.
+
+<p align="center">
+  <a href="https://github.com/Annenkov-Konstantin/web-larek-frontend/blob/main/docs/uml-class-diagram.png" target="_blank">
+    <img src="https://github.com/Annenkov-Konstantin/web-larek-frontend/raw/main/docs/uml-class-diagram.png" alt="UML Class Diagram" width="100%" />
+  </a>
+  <br>
+  <i>Нажмите на изображение, чтобы открыть в полном размере</i>
+</p>
+
+## 📊 Типы данных
+
+### Основные модели
+
+```typescript
 interface IItemModel {
 	id: string;
 	title: string;
@@ -60,24 +374,7 @@ interface IItemModel {
 	description: string;
 	price: number | null;
 }
-```
 
-Интерфейс для модели работы с данными товаров
-
-```
-interface IItemsCatalogModel {
-	catalog: IItemModel[];
-	selectedItem: IItemModel;
-	processImagesSrc(catalog: IItemModel[]): IItemModel[];
-	setSelectedItem(id: string): void;
-	clearSelectedItem(): void;
-	getItem(id: string): ItemBasket;
-}
-```
-
-Интерфейс для модели данных корзины товаров
-
-```
 interface IBasketModel {
 	itemsList: ItemBasket[];
 	addItem(item: ItemBasket): void;
@@ -87,514 +384,79 @@ interface IBasketModel {
 	getTotalPrice(): number;
 	clearBasket(): void;
 }
-```
 
-Интерфейс для отображения выбранных товаров в корзине
-
-```
-interface IBasketItem {
-	totalPrice: number;
-	item: HTMLLIElement[];
-}
-```
-
-Покупатель
-
-```
 interface ICustomerModel {
 	phone: string;
 	email: string;
 	address: string;
 }
-```
 
-Интерфейс для обработки данных покупателя
-
-```
-interface ICustomerProcessingModel {
-	data: ICustomerModel;
-	clearCustomerData(): void;
-}
-```
-
-Данные заказа
-
-```
 interface IOrderModel extends ICustomerModel {
 	payment: 'card' | 'cash' | '';
 }
 ```
 
-Интерфейс для работы с модальным окном и корзиной
+### Частичные типы
 
-```
-interface IItemEventPayload extends ItemsId {
-	source: 'modal' | 'basket';
-}
-```
-
-Интерфейс для работы с данными заказа
-
-```
-interface IOrderMakerModel {
-	setPayment(value: OrderData['payment']): void;
-	clearOrdeData(): void;
-}
-```
-
-Интерфейс для работы с формой контактов
-
-```
-interface IOrderForm {
-	spanErrors: string;
-	buttonState: boolean;
-	card?: boolean;
-	cash?: boolean;
-}
-```
-
-Интерфейс для отбражения списанной суммы
-
-```
-interface ISuccess {
-	success: number;
-}
-```
-
-Интерфейс для типизации полученного от сервера ответа
-
-```
-interface ResponseSuccess {
-	total: number;
-	id: string;
-}
-```
-
-Данные id товара
-
-```
-type ItemsId = Pick<IItemModel, 'id'>;
-```
-
-Данные товара используемые в шапке при выводе количества товаров
-
-```
-type ItemsQuantity = ReturnType<IItemsBasket['getQuantity']>;
-```
-
-Данные выбранной карточки в галерее
-
-```
-type ClickedGallaryItem = { item: string };
-```
-
-Данные товара, используемые в корзине
-
-```
-type ItemBasket = Pick<IItem, 'id' | 'title' | 'price'>;
-```
-
-Данные пользователя, используемые в форме для выбора оплаты и указания адреса
-
-```
+```typescript
+type ItemBasket = Pick<IItemModel, 'id' | 'title' | 'price'>;
 type Payment = Pick<IOrderModel, 'payment'>;
 type Address = Pick<ICustomerModel, 'address'>;
-```
+type CustomerDataContacts = Pick<ICustomerModel, 'phone' | 'email'>;
 
-Данные заказа, используемы в модели заказа
-
-```
-type OrderData = Pick<IOrderModel, 'payment' | 'total'>;
-```
-
-Данные пользователя, используемые в форме для выбора оплаты и указания адреса
-
-```
-type CustomerDataContacts = Pick<ICustomer, 'phone' | 'email'>;
-type Email = Pick<ICustomerModel, 'email'>;
-type Phone = Pick<ICustomerModel, 'phone'>;
-```
-
-Данные для создания объекта для отправки на сервер
-
-```
 type FinalOrderData = ICustomerModel &
 	IOrderModel &
 	Record<'total', number> &
 	Record<'items', string[]>;
 ```
 
-## Архитектура приложения
-
-Код приложения разделен на слои согласно парадигме MVP:
-
-- слой представления, отвечает за отображение данных на странице;
-- слой данных, отвечает за хранение и изменение данных;
-- презентер, отвечает за связь представления и данных.
-
-### Базовый код
-
-#### Класс Api
-
-Содержит в себе базовую логику отправки запросов. В конструктор передается базовый адрес сервера и объект с заголовками запросов.
-Методы:
-
-- `get` - возвращает Promise<object>, который резолвится результатом response.json() при успешном ответе, и отклоняется с ошибкой, если статус не успешный;
-- `post` - принимает URI, объект данных для тела запроса и опциональный метод HTTP (по умолчанию 'POST'). Возвращает промис с объектом из JSON-ответа сервера.
-
-#### Класс EventEmitter
-
-Брокер событий позволяет отправлять события и подписываться на события, происходящие в системе. Класс используется в презентере для обработки событий и в слоях приложения для генерации событий.  
-Основные методы, реализуемые классом описаны интерфейсом `IEvents`:
-
-- `on` - подписка на событие;
-- `emit` - инициализация события;
-- `trigger` - возвращает функцию, при вызове которой инициализируется требуемое в параметрах событие.
-
-### Слой данных
-
-#### Класс ItemsCatalogModel
-
-Класс отвечает за хранение и логику работы с данными товаров.\
-Конструктор класса принимает инстант брокера событий и массив товаров.
-
-- `constructor(events: IEvents)` - принимает экземпляр класса `EventEmitter` для возможности инициации событий.
-
-В полях класса хранятся следующие данные:
-
-- `_catalog: IItem[]` - массив объектов товаров;
-- `_selectedItem: IItem` - выбранный товар, отображаемый в модальном окне;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
-
-Так же класс предоставляет набор методов для взаимодействия с этими данными.
-
-- `processImagesSrc(catalog: IItemModel[]): IItemModel[]` - осуществляет обработку адреса картинок;
-- `catalog: IItem[]` - сеттер и геттер для сохранения полученного от сервера списка товаров и получения обработанного списка товаров;
-- `setSelectedItem(id: string): void` - сохраняет выбранный товар для последующего вывода в модальном окне;
-- `clearSelectedItem(): void` - очищает информацию о показанном в модальном окне товаре при закрытии модального окна;
-- `selectedItem` - геттер для получения выбранного товара для отображения в модальном окне;
-- `getItem(id: string): ItemBasket` - возвращает выбранный товар для добавления в корзину.
-
-#### Класс BasketModel
-
-Класс отвечает за хранение и логику работы с выбранными товарами.
-Конструктор класса принимает инстант брокера событий.
-
-- `constructor(events: IEvents)` - принимает экземпляр класса `EventEmitter` для возможности инициации событий.
-
-В полях класса хранятся следующие данные:
-
-- `_itemsList: ItemBasket[]` - массив выбранных товаров;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
-
-Так же класс предоставляет набор методов для взаимодействия с этими данными.
-
-- `addItem(item: ItemBasket): void` - добавляет выбранный товар в корзину;
-- `removeItem(id: string): void` - удаляет выбранный товар из корзины;
-- `getQuantity(): number` - позволяет получить количество выбранных товаров;
-- `itemsList: ItemBasket[]` - геттер, возвращает список выбранных товаров;
-- `getItemsId(): string[]` - возвращает массив id выбранных товаров;
-- `getTotalPrice(): number` - позволяет получить совокупную сумму цен;
-- `clearBasket(): void` - очищает корзину при удачной покупке.
-
-#### Класс CustomerProcessingModel
-
-Класс отвечает за сохранение и добавление данных покупателя в заказ.
-
-- `constructor(events: IEvents)` - - принимает экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Класс содержит следующие поля:
-
-- `_customer: ICustomerMode` - объект с данными покупателя;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных;
-- `isPhoneValid: boolean` - состояние данных номера телефона покупателя;
-- `isEmailValid: boolean` - состояние данных имейла покупателя;
-- `isAddressValid: boolean` - состояние данных адреса покупателя.
-
-Класс содержит методы:
-
-- `setCustomerData(userData: Partial<ICustomerModel>): void` - сохраняет данные покупателя для заказа;
-- `getIsPhoneValid(): boolean` - возвращает состояние данных номера телефона покупателя;
-- `getIsEmailValid(): boolean` - возвращает состояние данных имейла покупателя;
-- `getIsAddressValid(): boolean` - возвращает состояние данных адреса покупателя;
-- `data: ICustomerModel` - геттер для получения данных покупателя для заказа;
-- `clearCustomerData(): void` - очищает данные покупателя.
-
-#### Класс OrderMakerModel
-
-Класс отвечает за хранение формы оплаты.
-
-- `constructor(events: IEvents)` - принимает экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Класс содержит поля:
-
-- `_orderPayment: IOrderModel['payment']` - способ оплаты;
-- `isPaymentValid: boolean` - возвращает состояние данных способа оплаты;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий при изменении данных;
-
-Класс содержит методы:
-
-- `setPayment(value: OrderData['payment'])` - сохраняет выбранную форму оплаты;
-- `getPaymentState(): boolean` - возвращает состояние поля способа оплаты;
-- `getOrder(): IOrderModel['payment']` - возвращает данные формы оплаты;
-- `clearOrdeData(): void` - очищает объект с данными о заказе после удачной покупки.
-
-### Классы представления
-
-Все классы представления отвечают за отображение внутри контейнера (DOM-элемент) передаваемых в них данных.
-
-#### Абстрактный класс ComponentView
-
-Позволяет наследовать всем компонентам отображения поле контейнера, который будет выбран для размещения разметки, а также метод для обновления данных объекта разметки наследников.
-
-- `constructor(container: HTMLElement)` - конструктор принимает контейнер разметки.
-
-Поля класса:
-
-- `_container: HTMLElement` - хранит ссылку на селектор контейнера;
-
-Методы класса:
-
-- `render(data?: Partial<T>): HTMLElement` - позволяет обновлять данные через сеттеры.
-
-#### Класс HeaderView
-
-Класс расширяет класс Component и позволяет отгбражать состояние корзины, а также предоставляет доступ к корзине.
-
-- `constructor(container: HTMLElement, events: IEvents)` - конструктор принимает ссылку на контейнер элемента и экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Поля класса:
-
-- `_buttonElement: HTMLButtonElement` - ссылка на кнопку вызова корзины в модальном окне;
-- `_basketCounterElement: HTMLSpanElement` - ссылка на элемент разметки отображения состояния корзины;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий.
-
-Методы класса:
-
-- `basketCounter(quantity: ItemsQuantity)` - сеттер для установки значения отображения состояния корзины.
-
-#### Абстрактный класс CardView
-
-Класс расширяет класс Component и позволяет наследовать поля названия товара и цену, так как эта информация отображается во всех карточках, а также экземпляр класса `EventEmitter`.
-
-- `constructor(container: HTMLElement, events: IEvents)` - конструктор принимает ссылку на контейнер элемента и экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Поля класса:
-
-- `_titleElement: HTMLElement` - хранит ссылку на элемент разметки, отвечающий за отображение названия товара;
-- `_priceElement: HTMLSpanElement` - хранит ссылку на элемент разметки, отвечающий за отображение цены;
-- `_cardId: string` - хранит id товара для возможности отображения конкретного товара;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий.
-
-Методы класса:
-
-- `title` - сеттер для отображения названия товара;
-- `id` - сеттер и геттер для сохранения и полученим id конкретного товара;
-- `price` - сеттер для отображения цены.
-
-#### Класс ItemCardView
-
-Класс расширяет класс CardView. Класс отвечает за отображение отдельной карточки в галерее товаров.
-
-- `constructor(container: HTMLElement, events: IEvents)` - конструктор принимает ссылку на контейнер элемента и экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Поля класса:
-
-- `_imageElement: HTMLImageElement` - содержит ссылку на элемент разметки отображения картинки товара;
-- `_categoryElement: HTMLSpanElement` - содержит ссылку на элемент разметки отображения информации о категории товара.
-
-Методы класса:
-
-- `image(src: string)` - сеттер для установки ссылки на картинку;
-- `description(value: string)` - сеттер для установки отображения текста описания товара;
-- `category(value: string)` - сеттер для установки отображения категории товара.
-
-#### Класс ItemsGallaryView
-
-Расширяет класс ComponentView. Предназначен для вывода списка товаров в галерею.
-
-- `constructor(containerToPasteGalary)` - контейнер разметки страницы, куда будет вставлятся галерея товаров.
-
-Поля класса:
-
-- `_catalog: HTMLElement` - контейнер разметки страницы, куда будет вставлятся галерея товаров.
-
-Методы класса:
-
-- `catalog(items: HTMLElement[])` - сеттер для установки карточек в галерею из массива объектов карточек.
-
-#### Класс CardBasketView
-
-Расширяет класс CardView. Предназначен для отображения элемента списка товара в корзине.
-
-- `constructor(container: HTMLElement, events: IEvents)` - принимает ссылку на элемент списка товара в корзине и экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Поля класса:
-
-- `_quantityItemsElement: HTMLSpanElement` - хранит ссылку на элемент, отображающий порядковый номер в списке товаров корзины;
-- `_buttonDeleteElement: HTMLButtonElement` - ссылка на кнопку удаления товара из списка.
-
-Метод класса:
-
-- `setNumberInList(value: number): void` - устанавливает порядковый номер в элементе списка.
-
-#### Класс BasketListView
-
-Расширяет абстрактный класс Component. Предоставляет обёртку для списка товаров в корзине.
-
-- `constructor(container: HTMLElement, events: IEvents)` - принимает ссылку на элемент списка товара в корзине и экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Поля класса:
-
-- `_basketListElement: HTMLUListElement` - ссылка на элемент разметки для вставки элементов списка товаров;
-- `_buttonToOrder: HTMLButtonElement` - ссылка на кнопку для оформления товаров;
-- `basketTotalPriceElement: HTMLSpanElement` - ссылка на элемент разметки для отображения общей стоимости за весь список товаров;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий.
-
-Методы класса:
-
--`totalPrice(value: number)` - сеттер установки значения общей стоимости;
-
-- `item(item: HTMLLIElement[])` - сеттер установки элементов в список.
-
-#### Класс ModalCardView
-
-Расширяет класс CardView. Предназначен для вывода товара в модальном окне.
-
-- `constructor(container: HTMLElement, events: IEvents)` - принимает ссылку на элемент списка товара в корзине и экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Поля класса:
-
-- `_imageElement: HTMLImageElement` - ссылка на элемент отображения картики товара;
-- `_categoryElement: HTMLSpanElement` - ссылка на на элемент отображения текста и стиля категории товара;
-- `_descriptionElement: HTMLParagraphElement` - ссылка на на элемент отображения текста описания товара;
-- `_buttonElement: HTMLButtonElement` - ссылка на кнопку добавления/удаления товара в модальнолм окне.
-
-  Методы класса:
-
-- `image(src: string)` - сеттер для установки отображения ссылки на картинку;
-- `category(value: string)` - сеттер для установки текста и стиля категории товара;
-- `description(value: string)` - сеттер для установки текста описания товара;
-- `override set price(value: number | null)` - переопределение родительского сеттера тображения цены товара;
-- `buttonState(): void` - управляет переключением текста кнопки добавления/удаления товара в модальнолм окне;
-- `buttonToBuy(): void` - переключает текст кнопки в состояние "Купить", если товар не был добавлен в корзину;
-- `buttonToDelete(): void` - переключает текст кнопки в состояние "Удалить из корзины", если товар был добавлен в корзину.
-
-#### Класс ModalWrapperView
-
-Расширяет класс ComponentView. Предназначен для вывода содержимого в модальное окно, выступая обёрткой для контента, который ему передаётся. Устанавливает слушатели на клавиатуру, для закрытия модального окна по Esc, на клик в оверлей и кнопку-крестик для закрытия попапа.
-
-- `constructor(container: HTMLElement, events: IEvents, page: HTMLElement)` - конструктор принимает селектор, по которому в разметке страницы будет идентифицировано модальное окно и экземпляр класса `EventEmitter` для возможности инициации событий, а также ссылку на элемент page страницы (для предотвращения прокрутки страницы в момент, когда модальное окно открыто).
-
-Поля класса:
-
-- `_closeButton: HTMLButtonElement` - элемент кнопки закрытия модального окна;
-- `_contentElement: HTMLElement` - содержимое модального окна;
-- `_page: HTMLElement` - ссылка на элемент page страницы;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий.
-
-Методы класса:
-
-- `insertContentAndDisplay(content: Node): void` - помещает в разметку модального окна контент;
-- `closemodalWrapperAndClear(): void` - закрывает модальное окно и сбрасывает его состояние в дефолтное.
-
-#### Абстрактный Класс FormView
-
-Расширяет абстрактный класс Component. Позволяет наследовать своим потомкам ссылки на разметку контейнера формы, элемента отображения ошибок при вводе в поля ввода и объявление кнопки сабмита (ссылка на конкретную кнопку производится в дочерних классах).
-
-- `constructor(container: HTMLElement, events: IEvents)` - принимает ссылку на элемент списка товара в корзине и экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Поля класса:
-
-- `_form: HTMLFormElement` - ссылка контейнер формы;
-- `_formErrors: HTMLSpanElement` - элемент формы отображения ошибок;
-- `_submitButton: HTMLButtonElement` - объявление ссылки кнопки сабмита;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий.
-
-Методы класса:
-
-- `spanErrors` - сеттер, показывает/срывает сообщение об ошибке;
-- `buttonState` - устанавливает активность кнопки сабмита.
-
-#### Класс OrderFormView
-
-Расширяет класс FormView. Предназначен для вывода формы с выбором формы оплаты и полем для ввода адреса заказа.
-
-- `constructor(container: HTMLFormElement, events: IEvents)` - принимает ссылку на элемент списка товара в корзине и экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Поля класса:
-
-- `_cardButton: HTMLButtonElement` - ссылка на элемент кнопки для выбора безналичного расчета онлайн;
-- `_cashButton: HTMLButtonElement` - ссылка на элемент кнопки для выбора расчета наличными при получении;
-- `_addressInput: HTMLInputElement` - ссылка на поле ввода адреса покупателя.
-
-Методы класса:
-
-- `card(cardPayment: boolean)` - сеттер, устанавливает кнопку для выбора безналичного расчета в состояние выбрано/невыбрано;
-- `cash(cashPayment: boolean)` - сеттер, устанавливает кнопку для выбора наличного расчета в состояние выбрано/невыбрано;
-- `clearForm(): void` - сбрасывает форму и кнопки.
-
-#### Класс ContactsFormView
-
-Расширяет класс Form. Предназначен для вывода формы для ввода контактов пользователя.
-Поля класса содержат ссылки на элементы формы, а также на обработчики для реакции на действия пользователя.
-
-- `constructor(container: HTMLFormElement, events: IEvents)` - принимает ссылку на элемент списка товара в корзине и экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Поля класса:
-
-- `_emailInput: HTMLInputElement` - ссылка на поле ввода имейла;
-- `_phoneInput: HTMLInputElement` - ссылка на поле ввода ермера телефона.
-
-Методы класса:
-
-- `clearForm(): void` - сбрасывает форму.
-
-#### Класс ModallSuccessView
-
-Расширяет абстрактный класс Component. Содержит разметку с указанием вывода суммы заказа, которую прислал сервер и кнопку закрытия окна, после нажатия на которую сбрасываются все состояния форм и очищаются корзина и другие данные.
-
-- `constructor(container: HTMLFormElement, events: IEvents)` - принимает ссылку на элемент списка товара в корзине и экземпляр класса `EventEmitter` для возможности инициации событий.
-
-Поля класса:
-
-- `_buttonSuccess: HTMLButtonElement` - ссылка на кнопку "За покупками";
-- `_descriptionElement: HTMLParagraphElement` - ссылка на элемент вывода суммы заказа, которую прислал сервер;
-- `_events: IEvents` - экземпляр класса `EventEmitter` для инициации событий.
-
-Методы класса:
-
--`success(value: number)` - сеттер, устанавливающий значения суммы заказа.
-
-## Взаимодействие компонентов
-
-Код, описывающий взаимодействие представления и данных между собой находится в файле `index.ts`, выполняющем роль презентера.\
-Взаимодействие осуществляется за счет событий генерируемых с помощью брокера событий и обработчиков этих событий, описанных в `index.ts`.\
-В `index.ts` сначала получаются ссылки на контейнеры разметки, далее создаются экземпляры всех необходимых классов, а затем настраивается обработка событий.
-
-_Список всех событий, которые могут генерироваться в системе:_\
-_События изменения данных (генерируются классами моделями данных)_
-
-- `catalog:initialized` - обработка и сохранение полученных данных;
-- `item:selected` - поиск и сохранение выбранной по клику в галерее карточки для дальнейшего отображения;
-- `item:added` - товар добавлен в корзину;
-- `item:deleted` - товар удалён из корзины;
-- `order:created` - заказ сформирован;
-- `customerData:changed` - данные пользователя изменены;
-- `payment:set` - установка выбора оплаты.
-
-_События, возникающие при взаимодействии пользователя с интерфейсом (генерируются классами, отвечающими за представление)_
-
-- `itemsGalleryButton:clicked` - клик по карточке в галерее;
-- `modalButton:clicked` - клик по кнопке закрытия модалки или оверлею;
-- `cardPreviewButton:clicked` - добавление/удаление товара по клику кнопки;
-- `basketButton:clicked` - событие клика по кнопке корзины;
-- `buttonDelete:clicked` - событие клика по кнопке удаления товара в списке корзины;
-- `buttonToOrderClicked:clicked` - клик по кнопке для начала оформления покупки;
-- `paymentButton:clicked` - выбор формы оплаты по клику на кнопку;
-- `addressInput:changed` - изменение в поле ввода адреса покупателя;
-- `orderForm:submit` - сабмит формы заказа;
-- `emailInput:changed` - изменение в поле ввода имейла;
-- `phoneInput:changed` - изменение в поле ввода номера телефона;
-- `contactsForm:submit` - сабмит формы контактов;
-- `successButton:clicked` - закрытие модального окна Success.
+## 🔄 События
+
+### События изменения данных (генерируются Model)
+
+| Событие                | Описание                                 |
+| ---------------------- | ---------------------------------------- |
+| `catalog:initialized`  | Обработка и сохранение полученных данных |
+| `item:selected`        | Выбор товара в галерее                   |
+| `item:added`           | Товар добавлен в корзину                 |
+| `item:deleted`         | Товар удалён из корзины                  |
+| `order:created`        | Заказ сформирован                        |
+| `customerData:changed` | Данные пользователя изменены             |
+| `payment:set`          | Установка способа оплаты                 |
+
+### События взаимодействия (генерируются View)
+
+| Событие                        | Описание                   |
+| ------------------------------ | -------------------------- |
+| `itemsGalleryButton:clicked`   | Клик по карточке в галерее |
+| `modalButton:clicked`          | Закрытие модального окна   |
+| `cardPreviewButton:clicked`    | Добавление/удаление товара |
+| `basketButton:clicked`         | Открытие корзины           |
+| `buttonDelete:clicked`         | Удаление товара из корзины |
+| `buttonToOrderClicked:clicked` | Начало оформления заказа   |
+| `paymentButton:clicked`        | Выбор формы оплаты         |
+| `addressInput:changed`         | Изменение адреса           |
+| `orderForm:submit`             | Отправка формы заказа      |
+| `emailInput:changed`           | Изменение email            |
+| `phoneInput:changed`           | Изменение телефона         |
+| `contactsForm:submit`          | Отправка формы контактов   |
+| `successButton:clicked`        | Закрытие окна успеха       |
+
+## 📬 Контакты
+
+Если у вас есть вопросы по проекту или вы хотите сотрудничать:
+
+- **Сайт:** [pheb.ru](https://pheb.ru/)
+- **Email:** pheb@list.ru
+- **Telegram:** [@Knfrei](https://t.me/Knfrei)
+- **GitHub:** [@Annenkov-Konstantin](https://github.com/Annenkov-Konstantin)
+
+---
+
+<div align="center">
+
+**Если проект был полезен, поставьте ⭐ на GitHub!**
+
+</div>
+
+---
