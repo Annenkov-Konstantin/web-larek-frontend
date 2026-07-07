@@ -352,7 +352,7 @@ web-larek-frontend/
 
 ### 📊 UML-диаграмма классов
 
-Архитектура приложения по паттерну MVP. Синим цветом выделен слой данных, зелёным — слой представления, оранжевым — презентер и брокер событий.
+Архитектура приложения по паттерну MVP.
 
 <p align="center">
   <a href="https://github.com/Annenkov-Konstantin/web-larek-frontend/blob/main/docs/uml-class-diagram.png" target="_blank">
