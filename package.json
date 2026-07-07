@@ -1,6 +1,7 @@
 {
   "name": "my-webpack-project",
   "version": "1.0.0",
+  "homepage": "https://annenkov-konstantin.github.io/web-larek-frontend/",
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
@@ -42,6 +43,7 @@
     "lint": "eslint --ext .js,.ts ./src",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier ./src --write",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   }
 }
