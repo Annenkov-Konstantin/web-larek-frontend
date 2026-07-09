@@ -16,7 +16,7 @@
 
 ### Интерфейс сайта
 
-[🔗 Посмотреть демо](https://annenkov-konstantin.github.io/web-larek-frontend/) • [💻 Исходный код](https://github.com/Annenkov-Konstantin/web-larek-frontend)
+[🔗 Посмотреть демо](https://annenkov-konstantin.github.io/web-larek-frontend/)
 
 Интернет-магазин на TypeScript, реализованный по паттерну **MVP (Model-View-Presenter)** с событийной архитектурой. Приложение позволяет просматривать каталог товаров, добавлять их в корзину, оформлять заказы с выбором способа оплаты и вводом контактных данных. Все данные синхронизируются с сервером через REST API.
 
